@@ -6,8 +6,10 @@ def crawl(seed):
     lstQueue = []
     dicPages = {}
     
+    
     dicPages[seed]=getLinks(seed)
     for strLinks in dicPages[seed]:
+        #add these links to the page
         lstQueue.append[strLinks]
             
     
@@ -18,7 +20,7 @@ def crawl(seed):
             #since we're going to be on that page, let's add it to the pages we've visited
             lstPagesVisited.append(strSubPage)
             #If the links found in page aren't in the queue or in the pages visited, add it to the list
-            dicPages[strSubPage]={}
+            dicPages[strSubPage]=getLinks(strSubPage)
             for strLink in dicPages[strSubPage]:
                 #if it's not in the queue already and not in the pages visited, then
                 if((strLink not in lstQueue) and (strLink not in lstPagesVisited)):
