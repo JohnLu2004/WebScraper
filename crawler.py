@@ -8,35 +8,32 @@ def crawl(seed):
     
     
     dicPages[seed]=getLinks(seed)
-    for strLinks in dicPages[seed]:
+    for strLink in dicPages[seed]:
         #add these links to the page
-        lstQueue.append[strLinks]
+        lstQueue.append(strLink)
             
     
     #while there's still something in the queue
     while(len(lstQueue)>0):
         #go through the links we need to go through
-        for strSubPage in lstQueue
-            #since we're going to be on that page, let's add it to the pages we've visited
-            lstPagesVisited.append(strSubPage)
+        for strSubPage in lstQueue:
             #If the links found in page aren't in the queue or in the pages visited, add it to the list
             dicPages[strSubPage]=getLinks(strSubPage)
+            #since we've gone on that page, let's add it to the pages we've visited
+            lstPagesVisited.append(strSubPage)
+            lstQueue.pop(0)
             for strLink in dicPages[strSubPage]:
-                #if it's not in the queue already and not in the pages visited, then
-                if((strLink not in lstQueue) and (strLink not in lstPagesVisited)):
+                #if it's not in the queue already or not in the pages visited, then
+                if((strLink not in lstQueue) and (strLink not in lstPagesVisited) and (strLink not in dicPages)):
                     lstQueue.append(strLink)
-            
-            
-            
-    #I put the hrefs into a list(queue)
-    for strLink in lstQueue:
-        print(strLink)
     
+    for key in dicPages:
+        print(key)
     #the number of pages we visited will be the number of pages there are since we visited all of them
-    return len(lstQueue)
+    return len(dicPages)
 
 #this function returns a list of links
-def getLinks(strPage):
+def getLinks(seed):
     
     #We'll open up the file for reading
     lstLines=webdev.read_url(seed).strip().split("\n")
@@ -45,9 +42,10 @@ def getLinks(strPage):
     intStart = 0
     intEnd = 0
     
-    strBeginning = seed[0:seed.rfind("/")]
-    strLink = ""
     
+    strBeginning = seed[0:seed.rfind("/")+1]
+    strLink = ""
+    lstLinks=[]
     
     #we'll read the whole thing
     for strLine in lstLines:
