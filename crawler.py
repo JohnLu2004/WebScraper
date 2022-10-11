@@ -4,6 +4,7 @@ def crawl(seed):
     #it'll only have the seed first
     lstPagesVisited=[seed]
     lstQueue = []
+    dicPages = {}
     
     #We'll open up the file for reading
     lstLines=webdev.read_url(seed).strip().split("\n")
@@ -35,6 +36,20 @@ def crawl(seed):
             lstQueue.append(strLink)
             
     
+    #while there's still something in the queue
+    while(len(lstQueue)>0):
+        #go through the links we need to go through
+        for strSubPage in lstQueue
+            #since we're going to be on that page, let's add it to the pages we've visited
+            lstPagesVisited.append(strSubPage)
+            #If the links found in page aren't in the queue or in the pages visited, add it to the list
+            dicPages[strSubPage]={}
+            for strLink in dicPages[strSubPage]:
+                if((strLink not in lstQueue) and (strLink not in lstPagesVisited)):
+                    lstQueue.append(strLink)
+            
+            
+            
     #I put the hrefs into a list(queue)
     for strLink in lstQueue:
         print(strLink)
