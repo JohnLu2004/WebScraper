@@ -7,7 +7,7 @@ def crawl(seed):
     dicPages = {}
     
     
-    dicPages[seed]=getLinks(seed)
+    dicPages[seed]=get_outgoing_links(seed)
     for strLink in dicPages[seed]:
         #add these links to the page
         lstQueue.append(strLink)
@@ -18,7 +18,7 @@ def crawl(seed):
         #each time we go through one link
         strSubPage = lstQueue[0]
         #If the links found in page aren't in the queue or in the pages visited, add it to the list
-        dicPages[strSubPage]=getLinks(strSubPage)
+        dicPages[strSubPage]=get_outgoing_links(strSubPage)
         #since we've gone on that page, let's add it to the pages we've visited
         lstPagesVisited.append(strSubPage)
         lstQueue.pop(0)
@@ -30,10 +30,10 @@ def crawl(seed):
     # for key in dicPages:
     #     print(key)
     #the number of pages we visited will be the number of pages there are since we visited all of them
-    return len(dicPages)
+    return len(lstPagesVisited)
 
 #this function returns a list of links
-def getLinks(seed):
+def get_outgoing_links(seed):
     
     #We'll open up the file for reading
     lstLines=webdev.read_url(seed).strip().split("\n")
