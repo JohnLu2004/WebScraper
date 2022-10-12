@@ -50,3 +50,19 @@ def get_incoming_links(URL):
                 lstAllPages.append(strPage)
     #return a list of all the pages in subpages
     return lstAllPages
+
+def get_page_rank(URL):
+    return -1
+
+def get_idf(word):
+    intTotalDocuments=1
+    intNumberOfDocumentsWithWord=1
+    return intTotalDocuments/(1+intNumberOfDocumentsWithWord)
+    
+def get_tf(URL, word):
+    intOccurences = 1
+    intTotalWords = 1
+    return intOccurences/intTotalWords
+
+def tf_idf(URL, word):
+    return 1
