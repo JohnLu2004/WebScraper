@@ -60,23 +60,33 @@ def get_idf(word):
     return intTotalDocuments/(1+intNumberOfDocumentsWithWord)
     
 def get_tf(URL, word):
+    #make some variables
     dicWords = {}
     strWord = ""
     intFrequency = 0
     intTotalWords = 0
     
+    #we read from the file
     file = open(URL[URL.rfind("/")+1:len(URL)]+".txt","r")
     strLine = file.readline()
     
+    #while there's still stuff to read
     while(strLine!=""):
+        #eg. strLine = "apple:4"
+        #make the word equal to what comes before the :
         strWord = strLine[0:strLine.find(":")
-        intFrequency = int(strLine[stLine.find(":"):len(strLine)])
+        #make the frequency equal to what comes after the :
+        intFrequency = int(strLine[strLine.find(":")+1:len(strLine)])
+        
+        #add the word to the dictionary and to total words
         dicWords[strWord]=intFrequency
         intTotalWords+=intFrequency
-        
+    
+    #if the word is in the dictionary, return the term frequency calculation
     if(word in dicWords):
         intOccurences = dicWords[word]
         return intOccurences/intTotalWords
+    #otherwise, return 0
     else:
         return -1
 
