@@ -1,4 +1,6 @@
 import webdev
+import os
+import math
 
 #this function returns a list of links
 def get_outgoing_links(URL):
@@ -69,8 +71,9 @@ def get_idf(word):
             if os.path.isfile(strPage):
                 intNumberOfDocumentsWithWord+=1
         intTotalDocuments+=1
-        
-    return intTotalDocuments/(1+intNumberOfDocumentsWithWord)
+    
+    #i forgot to use the log function on this. 
+    return math.log2(intTotalDocuments/(1+intNumberOfDocumentsWithWord))
     
 def get_tf(URL, word):
     #we make the 2 variables we need
@@ -99,4 +102,4 @@ def get_tf(URL, word):
      return fltWord/fltTotal
 
 def tf_idf(URL, word):
-    return 1
+    return get_idf(word)*get_tf(URL, word)
