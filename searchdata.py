@@ -63,8 +63,8 @@ def get_idf(word):
     
 def get_tf(URL, word):
     #we make the 2 variables we need
-    intWord = 1
-    intTotal = 1
+    fltWord = 1
+    fltTotal = 1
     #we go into the directory with the URL name
     strDirectory = URL[URL.rfind("/")+1:len(URL)-5]
 	if os.path.isdir(strDirectory):
@@ -74,7 +74,7 @@ def get_tf(URL, word):
             #we go into the word file
 			ioFile = open(strPath, "r")
             #we read that word file
-			intWord = int(ioFile.read())
+			fltWord = int(ioFile.read())
 			ioFile.close()
         #read the total words file
         strFile = ("total.txt")
@@ -83,9 +83,9 @@ def get_tf(URL, word):
             #we go into the word file
 			ioFile = open(strPath, "r")
             #we read that word file
-			intTotal = int(ioFile.read())
+			fltTotal = int(ioFile.read())
 			ioFile.close()
-     return float(intWord/intTotal)
+     return fltWord/fltTotal
 
 def tf_idf(URL, word):
     return 1

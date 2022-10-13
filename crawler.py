@@ -32,6 +32,8 @@ def crawl(seed):
             if((strLink not in lstQueue) and (strLink not in lstPagesVisited) and (strLink not in dicPages)):
                 lstQueue.append(strLink)
     
+    #record the pages we've been to
+    recordPages(dicPages)
     
     #the number of pages we visited will be the number of pages there are since we visited all of them
     return len(lstPagesVisited)
@@ -105,4 +107,11 @@ def createTotalWordFile(strDirectory, dicWords):
     
     fileout.write(str(intTotal))
     fileout.close()
+    return None
+
+def recordPages(dicPages):
+    file = open("pages.txt","w")
+    for strPage in dicPages:
+        file.write(strPage+"\n")
+    file.close()
     return None
