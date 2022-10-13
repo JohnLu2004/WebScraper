@@ -57,8 +57,19 @@ def get_page_rank(URL):
     return -1
 
 def get_idf(word):
-    intTotalDocuments=1
+    #initialize variables
     intNumberOfDocumentsWithWord=1
+    intTotalDocuments=0
+    #so we're going to check which pages in the pages.txt file has the word
+    for page in lstPages:
+        strDirectory = page
+        if os.path.isdir(strDirectory):
+            strFile = word+".txt"
+            strPath = os.path.join(strDirectory, strFile)
+            if os.path.isfile(strPage):
+                intNumberOfDocumentsWithWord+=1
+        intTotalDocuments+=1
+        
     return intTotalDocuments/(1+intNumberOfDocumentsWithWord)
     
 def get_tf(URL, word):
