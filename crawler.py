@@ -39,7 +39,7 @@ def crawl(seed):
     return len(lstPagesVisited)
 
 #this function will write down the info into a file
-#O(1) time
+#O(n) time due to function called that is O(n)
 def recordInformation(strSubPage):
     #We'll open up the file for reading
     lstLines=webdev.read_url(strSubPage).strip().split("\n")
@@ -56,7 +56,7 @@ def recordInformation(strSubPage):
     deleteOlderDirectory(strDirectory)
     
     #create a file and then write into it
-    createWordFile(dicWords)
+    createWordFile(strDirectory,dicWords)
     
     #create a file that keeps track of how many words there are
     createTotalWordFile(strDirectory,dicWords)
@@ -97,7 +97,7 @@ def deleteOlderDirectory(strDirectory):
 
 #This function creates files for every word and prints the number of times that word appears
 #O(n) time
-def createWordFile(dicWords):
+def createWordFile(strDirectory, dicWords):
     for strWord in dicWords:
         strFileName = strWord
         file_path = os.path.join(strDirectory,(strFileName+".txt"))
