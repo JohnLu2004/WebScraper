@@ -46,15 +46,17 @@ def recordInformation(strSubPage):
     
     #we'll read the whole thing
     for strLine in lstLines:
-        #If it starts with "<p>", then we know it has a link to another pages
-        if(strLine.startswith("<p>")):
+        #If it starts with "<p>", then we know it has paragraphs
+        if(strLine.strip()==("<p>")):
+            print("owo")
             blnParse = True
-        if(strLine.startswith("</p>")):
+        if(strLine.strip()==("</p>")):
             blnParse = False
             
         #if it's time to parse the paragraph, then...
-        if(blnParse==True):
-            for strWord in strLine.split():
+        if(blnParse==True and not strLine.strip().startswith("<p>")):
+            print("working")
+            for strWord in strLine.split().strip():
                #if it's not in the dictionary, make it 1
                if(strWord not in dicWords):
                    dicWords[strWord]=1
@@ -62,14 +64,22 @@ def recordInformation(strSubPage):
                else:
                 dicWords[strWord]+=1
     
-    #create a directory
+    #delete old directories
     strDirectory = strSubPage[strSubPage.rfind("/")+1:len(strSubPage)-4]
+    if os.path.isdir(strDirectory):
+        files = os.listdir(strDirectory)
+        for file in files:
+            os.remove(os.path.join(strDirectory, file))
+        os.rmdir(strDirectory)
+    #create new directory
     os.makedirs(strDirectory)
     
     #create a file and then write into it
     for strWord in dicWords:
         strFileName = strWord
-        file_path = os.path.join(strDirectory, strFileName)
+        file_path = os.path.join(strDirectory,(strFileName+".txt"))
+        print(file_path)
+        print(strWord)
         fileout = open(file_path, "w")
         fileout.write(str(dicWords[strWord]))
         fileout.close()
