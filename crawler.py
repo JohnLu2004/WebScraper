@@ -39,6 +39,7 @@ def crawl(seed):
     return len(lstPagesVisited)
 
 #this function will write down the info into a file
+#O(1) time
 def recordInformation(strSubPage):
     #We'll open up the file for reading
     lstLines=webdev.read_url(strSubPage).strip().split("\n")
@@ -62,6 +63,8 @@ def recordInformation(strSubPage):
     
     return None
 
+#This generally updates a dictionary with the number of words inside
+#O(n) time
 def countWord(lstLines, dicWords):
     for strLine in lstLines:
         #If it starts with "<p>", then we know it has paragraphs
@@ -80,6 +83,8 @@ def countWord(lstLines, dicWords):
                 dicWords[strLine]+=1
     return None
 
+#This function checks if a directory exists and deletes it
+#O(1) time
 def deleteOlderDirectory(strDirectory):
     if os.path.isdir(strDirectory):
         files = os.listdir(strDirectory)
@@ -90,6 +95,8 @@ def deleteOlderDirectory(strDirectory):
     os.makedirs(strDirectory)
     return None
 
+#This function creates files for every word and prints the number of times that word appears
+#O(n) time
 def createWordFile(dicWords):
     for strWord in dicWords:
         strFileName = strWord
@@ -98,6 +105,8 @@ def createWordFile(dicWords):
         fileout.write(str(dicWords[strWord]))
         fileout.close()
 
+#This function creates a file that prints out the total words in a page
+#O(n) time
 def createTotalWordFile(strDirectory, dicWords):
     intTotal=0
     strPath = os.path.join(strDirectory,("total.txt"))
@@ -109,8 +118,12 @@ def createTotalWordFile(strDirectory, dicWords):
     fileout.close()
     return None
 
+#This function records the pages that we've been to
+#O(n) time
 def recordPages(dicPages):
+    #make the file in the general directory
     file = open("pages.txt","w")
+    #write the page name into the file
     for strPage in dicPages:
         file.write(strPage+"\n")
     file.close()
