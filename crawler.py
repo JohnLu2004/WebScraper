@@ -46,6 +46,21 @@ def recordInformation(strSubPage):
     blnParse = False
     
     #we'll read the whole thing
+    countWord(lstLines, dicWords)
+    
+    #delete old directories
+    strDirectory = strSubPage[strSubPage.rfind("/")+1:len(strSubPage)-5]
+    deleteOlderDirectory(strDirectory)
+    
+    #create a file and then write into it
+    createWordFile(dicWords)
+    
+    #create a file that keeps track of how many words there are
+    createTotalWordFile(strDirectory,dicWords)
+    
+    return None
+
+def countWord(lstLines, dicWords):
     for strLine in lstLines:
         #If it starts with "<p>", then we know it has paragraphs
         if(strLine.strip().endswith("<p>")):
@@ -61,9 +76,9 @@ def recordInformation(strSubPage):
             #otherwise, add 1
             else:
                 dicWords[strLine]+=1
-    
-    #delete old directories
-    strDirectory = strSubPage[strSubPage.rfind("/")+1:len(strSubPage)-5]
+    return None
+
+def deleteOlderDirectory(strDirectory):
     if os.path.isdir(strDirectory):
         files = os.listdir(strDirectory)
         for file in files:
@@ -71,16 +86,17 @@ def recordInformation(strSubPage):
         os.rmdir(strDirectory)
     #create new directory
     os.makedirs(strDirectory)
-    
-    #create a file and then write into it
+    return None
+
+def createWordFile(dicWords):
     for strWord in dicWords:
         strFileName = strWord
         file_path = os.path.join(strDirectory,(strFileName+".txt"))
         fileout = open(file_path, "w")
         fileout.write(str(dicWords[strWord]))
         fileout.close()
-    
-    #create a file that keeps track of how many words there are
+
+def createTotalWordFile(strDirectory, dicWords):
     intTotal=0
     strPath = os.path.join(strDirectory,("total.txt"))
     fileout = open(strPath, "w")
@@ -89,5 +105,4 @@ def recordInformation(strSubPage):
     
     fileout.write(str(intTotal))
     fileout.close()
-    
     return None
