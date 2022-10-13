@@ -1,5 +1,7 @@
 import webdev
 import searchdata
+import os
+
 def crawl(seed):
     #first, make a list of all the links we've gone to
     #it'll only have the seed first
@@ -36,29 +38,39 @@ def crawl(seed):
 #this function will write down the info into a file
 def recordInformation(strSubPage):
     #We'll open up the file for reading
-    lstLines=webdev.read_url(URL).strip().split("\n")
+    lstLines=webdev.read_url(strSubPage).strip().split("\n")
     intIndex=0
     lstWords = []
     dicWords={}
+    blnParse = False
     
     #we'll read the whole thing
-    while(lstLines[intIndex]!=""):
+    for strLine in lstLines:
         #If it starts with "<p>", then we know it has a link to another pages
-        if(lstLines[intIndex].startswith("<p>")):
-            #go to the next line and put the words into a list
-            intIndex+=1;
-            for strWord in lstLines[intIndex].split():
-                #if it's not in the dictionary, make it 1
-                if(strWord not in dicWords):
-                    dicWords[strWord]=1
-                #otherwise, add 1
-                else:
-                    dicWords[strWord]+=1
-        intIndex+=1
+        if(strLine.startswith("<p>")):
+            blnParse = True
+        if(strLine.startswith("</p>")):
+            blnParse = False
+            
+        #if it's time to parse the paragraph, then...
+        if(blnParse==True):
+            for strWord in strLine.split():
+               #if it's not in the dictionary, make it 1
+               if(strWord not in dicWords):
+                   dicWords[strWord]=1
+               #otherwise, add 1
+               else:
+                dicWords[strWord]+=1
     
-    #write this into a file
-    file = open(URL[URL.rfind("/")+1:len(URL)]+".txt","w")
-    for strWord in dicWord:
-        file.write(strWord+":"+str(dicWords[strWord])
-    file.close()
+    #create a directory
+    strDirectory = strSubPage[strSubPage.rfind("/")+1:len(strSubPage)-4]
+    os.makedirs(strDirectory)
+    
+    #create a file and then write into it
+    for strWord in dicWords:
+        strFileName = strWord
+        file_path = os.path.join(strDirectory, strFileName)
+        fileout = open(file_path, "w")
+        fileout.write(str(dicWords[strWord]))
+        fileout.close()
     return None

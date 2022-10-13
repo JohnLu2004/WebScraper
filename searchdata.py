@@ -1,3 +1,5 @@
+import webdev
+
 #this function returns a list of links
 def get_outgoing_links(URL):
     
@@ -74,7 +76,7 @@ def get_tf(URL, word):
     while(strLine!=""):
         #eg. strLine = "apple:4"
         #make the word equal to what comes before the :
-        strWord = strLine[0:strLine.find(":")
+        strWord = strLine[0:strLine.find(":")]
         #make the frequency equal to what comes after the :
         intFrequency = int(strLine[strLine.find(":")+1:len(strLine)])
         
