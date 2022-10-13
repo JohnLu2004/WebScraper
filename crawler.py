@@ -79,4 +79,15 @@ def recordInformation(strSubPage):
         fileout = open(file_path, "w")
         fileout.write(str(dicWords[strWord]))
         fileout.close()
+    
+    #create a file that keeps track of how many words there are
+    intTotal=0
+    strPath = os.path.join(strDirectory,("total.txt"))
+    fileout = open(strPath, "w")
+    for strWord in dicWords:
+        intTotal+=dicWords[strWord]
+    
+    fileout.write(str(intTotal))
+    fileout.close()
+    
     return None
