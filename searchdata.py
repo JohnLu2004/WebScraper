@@ -38,24 +38,47 @@ def get_outgoing_links(URL):
     return lstLinks
     
 def get_incoming_links(URL):
-    lstQueue = get_outgoing_links(URL)
-    lstPages = []
-    lstAllPages = []
+    # for John: the previous algorithm is problemetic. While this one seems to work, it's a bit slow. We can think of other ways if time permits.
+    incomingLinks = []
+    filein = open("pages.txt", "r")
+    #lstQueue is all the files that could contain incoming links of the URL
+    lstQueue = filein.readlines()
+    filein.close()
     
-    #for every link in the main page, we will...
-    for strLinks in lstQueue:
-        #get a list of all the links in the subpage of a page
-        lstPages = get_outgoing_links(strLinks)
-        #for every link in that subpage, we will...
-        for strPage in lstPages:
-            #if that link isn't in the pages part yet, then...
-            if strPage not in lstAllPages:
-                #add it to the list of pages
-                lstAllPages.append(strPage)
-    #return a list of all the pages in subpages
-    return lstAllPages
+    for link in lstQueue:
+        link = link.strip()
+        if URL in get_outgoing_links(link) and not (link in incomingLinks):
+            incomingLinks.append(link)
+            continue
+    return incomingLinks
 
 def get_page_rank(URL):
+    # # page rank for all the URLs
+    
+    # adjacencyMatrix = []
+    # dict = {}
+    # count = 0
+    # filein = open("pages.txt", "r")
+    # link = filein.readline().strip()
+    # while link != "":
+    #     dict[count] = link
+    #     get_outgoing_links(link)
+        
+    #     count += 1
+
+    
+    # filein.close()
+    # alpha = 0.1
+    # euclideanDistThreshold = 0.0001
+    # # mapping from matrix to URL:
+    # # 0 -> N-0 ..
+    
+    # print(get_outgoing_links(URL))
+    # print(get_incoming_links(URL))
+    # # adjacency matrix
+    
+    
+    # # page rank for this URL
     return -1
 
 def get_idf(word):
