@@ -1,6 +1,7 @@
 import webdev
 import os
 import math
+import matmult
 
 #this function returns a list of links
 def get_outgoing_links(URL):
@@ -53,33 +54,67 @@ def get_incoming_links(URL):
     return incomingLinks
 
 def get_page_rank(URL):
-    # # page rank for all the URLs
+    # page rank for all the URLs
+    alpha = 0.1
+    euclideanDistThreshold = 0.0001
     
-    # adjacencyMatrix = []
-    # dict = {}
-    # count = 0
-    # filein = open("pages.txt", "r")
-    # link = filein.readline().strip()
-    # while link != "":
-    #     dict[count] = link
-    #     get_outgoing_links(link)
-        
-    #     count += 1
+    row = [] # row of the adjacency matrix
+    adjacencyMatrix = [] # N * N matrix
+    dict = {} # id -> link, e.g, 1:'http://.../N-3.html'
+    reversedDict = {} # link -> id, e.g., 'http://.../N-3.html':1
+    
+    # create dict and reverse dict
+    count = 0
+    filein = open("pages.txt", "r")
+    link = filein.readline().strip()
+    while link != "":
+        dict[count] = link
+        reversedDict[link] = count
+        count += 1
+        link = filein.readline().strip()
+    filein.close()
+    
+    # create adjacency matrix
+    adjacencyMatrix = [-1] * len(dict)
+    row = [-1] * len(dict)
+    for id in dict:
+        for link in reversedDict:
+            if link in get_outgoing_links(dict[id]):
+                row[reversedDict[link]] = 1
+            else:
+                row[reversedDict[link]] = 0
+        adjacencyMatrix[id] = row
+        row = [-1] * len(dict)
+    
+    # scaled adjacency matrix after adding alpha/N to each entry
+    count = 0
+    for i in range(len(adjacencyMatrix)):
+        for j in range(len(adjacencyMatrix[0])):
+            if adjacencyMatrix[i][j] == 1:
+                count += 1
+        for j in range(len(adjacencyMatrix[0])):
+            adjacencyMatrix[i][j] = (adjacencyMatrix[i][j] / count) * (1-alpha) + (alpha / len(adjacencyMatrix))
+        count = 0
+    
+    # power iteration with adjacency matrix
+    # initialize iterating vector
+    iteratingVector = [[1 / len(adjacencyMatrix)] * len(adjacencyMatrix)]
+    
+    # use modules of matmult in tutorial4 to calculate
+    finalPageRankVector = matmult.mult_matrix(iteratingVector, adjacencyMatrix) 
+    dist = matmult.euclidean_dist(finalPageRankVector, iteratingVector)
 
+    # iterate until dist < euclideanDistThreshold when we find the stable final page rank vector
+    while dist >= euclideanDistThreshold:
+        iteratingVector = finalPageRankVector
+        finalPageRankVector = matmult.mult_matrix(iteratingVector, adjacencyMatrix)
+        dist = matmult.euclidean_dist(finalPageRankVector, iteratingVector)
     
-    # filein.close()
-    # alpha = 0.1
-    # euclideanDistThreshold = 0.0001
-    # # mapping from matrix to URL:
-    # # 0 -> N-0 ..
-    
-    # print(get_outgoing_links(URL))
-    # print(get_incoming_links(URL))
-    # # adjacency matrix
-    
-    
-    # # page rank for this URL
-    return -1
+    # reversedDict: key=url, value=id. So finalPageRankVector[0][id] is the page rank result for the url with this id
+    if URL in reversedDict:
+        return finalPageRankVector[0][reversedDict[URL]]
+    else:
+        return -1
 
 def get_idf(word):
     #initialize variables
