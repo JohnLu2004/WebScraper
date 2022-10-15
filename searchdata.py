@@ -160,4 +160,4 @@ def get_tf(URL, word):
     return fltWord/fltTotal
 
 def tf_idf(URL, word):
-    return get_idf(word)*get_tf(URL, word)
+    return math.log10(1+get_tf(URL, word))*get_idf(word)

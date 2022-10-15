@@ -177,7 +177,7 @@ def recordIDF(dicAllWords, dicPages):
                     intNumberOfDocumentsWithWord+=1
         #enter the idf directory
         ioPath = os.path.join("IDF Values", strWord+"idf.txt")
-        #create the idf value for a word
+        #create the idf value for words
         ioFile = open(ioPath,"w")
         ioFile.write(str(math.log2(intTotalDocuments/(1+intNumberOfDocumentsWithWord))))
         ioFile.close()
