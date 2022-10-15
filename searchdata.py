@@ -2,6 +2,7 @@ import webdev
 import os
 import math
 import matmult
+import json
 
 #this function returns a list of links
 def get_outgoing_links(URL):
@@ -60,7 +61,7 @@ def get_page_rank(URL):
     
     row = [] # row of the adjacency matrix
     adjacencyMatrix = [] # N * N matrix
-    dict = {} # id -> link, e.g, 1:'http://.../N-3.html'
+    dict = {} # id -> link, e.g., 1:'http://.../N-3.html'
     reversedDict = {} # link -> id, e.g., 'http://.../N-3.html':1
     
     # create dict and reverse dict
@@ -74,12 +75,17 @@ def get_page_rank(URL):
         link = filein.readline().strip()
     filein.close()
     
+    # load outgoing links
+    file = open("outgoinglinks.json", "r")
+    outgoinglinks = json.load(file)
+    file.close()
+
     # create adjacency matrix
     adjacencyMatrix = [-1] * len(dict)
     row = [-1] * len(dict)
     for id in dict:
         for link in reversedDict:
-            if link in get_outgoing_links(dict[id]):
+            if link in outgoinglinks[dict[id]]:
                 row[reversedDict[link]] = 1
             else:
                 row[reversedDict[link]] = 0
@@ -92,8 +98,12 @@ def get_page_rank(URL):
         for j in range(len(adjacencyMatrix[0])):
             if adjacencyMatrix[i][j] == 1:
                 count += 1
-        for j in range(len(adjacencyMatrix[0])):
-            adjacencyMatrix[i][j] = (adjacencyMatrix[i][j] / count) * (1-alpha) + (alpha / len(adjacencyMatrix))
+        if count == 0:
+            for j in range(len(adjacencyMatrix[0])):
+                adjacencyMatrix[i][j] = (1 / len(adjacencyMatrix)) * (1-alpha) + (alpha / len(adjacencyMatrix))
+        else:
+            for j in range(len(adjacencyMatrix[0])):
+                adjacencyMatrix[i][j] = (adjacencyMatrix[i][j] / count) * (1-alpha) + (alpha / len(adjacencyMatrix))
         count = 0
     
     # power iteration with adjacency matrix

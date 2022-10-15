@@ -1,6 +1,10 @@
+from genericpath import isdir
 import webdev
 import searchdata
 import os
+import json
+
+prtDirectory = "crawling"
 
 def crawl(seed):
     #first, make a list of all the links we've gone to
@@ -9,14 +13,20 @@ def crawl(seed):
     lstQueue = []
     dicPages = {}
     
-    
     dicPages[seed]=searchdata.get_outgoing_links(seed)
+
+    # reset directory "crawling"
+    if os.path.isdir(prtDirectory):
+        for subDirectory in os.listdir(prtDirectory):
+            deleteOlderDirectory(os.path.join(prtDirectory,subDirectory))
+        deleteOlderDirectory(prtDirectory)
+    createNewDirectory(prtDirectory)
+
     recordInformation(seed)
     for strLink in dicPages[seed]:
         #add these links to the page
         lstQueue.append(strLink)
             
-    
     #while there's still something in the queue
     while(len(lstQueue)>0):
         #each time we go through one link
@@ -34,6 +44,9 @@ def crawl(seed):
     
     #record the pages we've been to
     recordPages(dicPages)
+
+    #record outgoing links
+    createOutGoingLinksFile(dicPages)
     
     #the number of pages we visited will be the number of pages there are since we visited all of them
     return len(lstPagesVisited)
@@ -51,15 +64,18 @@ def recordInformation(strSubPage):
     #we'll read the whole thing
     countWord(lstLines, dicWords)
     
-    #delete old directories
+    #create new directory
     strDirectory = strSubPage[strSubPage.rfind("/")+1:len(strSubPage)-5]
-    deleteOlderDirectory(strDirectory)
+    createNewDirectory(os.path.join(prtDirectory, strDirectory))
     
     #create a file and then write into it
-    createWordFile(strDirectory,dicWords)
+    createWordFile(os.path.join(prtDirectory, strDirectory),dicWords)
     
     #create a file that keeps track of how many words there are
-    createTotalWordFile(strDirectory,dicWords)
+    createTotalWordFile(os.path.join(prtDirectory, strDirectory),dicWords)
+
+    #create a file that records outgoing links
+    createOutGoingLinksFile(strDirectory)
     
     return None
 
@@ -89,10 +105,13 @@ def deleteOlderDirectory(strDirectory):
     if os.path.isdir(strDirectory):
         files = os.listdir(strDirectory)
         for file in files:
-            os.remove(os.path.join(strDirectory, file))
+            os.remove(os.path.join(strDirectory,file))
         os.rmdir(strDirectory)
-    #create new directory
-    os.makedirs(strDirectory)
+    return None
+
+def createNewDirectory(strDirectory):
+    if not os.path.exists(strDirectory):
+        os.makedirs(strDirectory)
     return None
 
 #This function creates files for every word and prints the number of times that word appears
@@ -126,5 +145,12 @@ def recordPages(dicPages):
     #write the page name into the file
     for strPage in dicPages:
         file.write(strPage+"\n")
+    file.close()
+    return None
+
+def createOutGoingLinksFile(dict):
+    #make the file in the general directory
+    file = open( "outgoinglinks.json", "w")
+    json.dump(dict,file)
     file.close()
     return None
