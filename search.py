@@ -21,7 +21,18 @@ def search(phrase, boost):
     
     #Now, we calculate the tf-idf
     for strSearchWord in dicSearchWords:
-        dicSearchWords[strSearchWord][2]=math.log2(dicSearchWords[strSearchWord][0]/intTotalWords)*get_idf(dicSearchWords[strSearchWord][0])
+        dicSearchWords[strSearchWord][2]=math.log2(dicSearchWords[strSearchWord][0]/intTotalWords)*(dicSearchWords[strSearchWord][0])
+    
+    #this array will keep track of the name of the URL and the cosine similarity score
+    lstSimilarity =[][]
+    file = open("pages.txt","r")
+    strURL = file.readline()
+    intIndex=0
+    while(strURL!=""):
+        lstSimilarity[intIndex][0]=strURL
+        strUrl= file.readline()
+        intIndex+=1
+    
     
     #calculate the cosine similarity for all websites
     for URL in lstWebsites:
