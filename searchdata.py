@@ -127,47 +127,29 @@ def get_page_rank(URL):
         return -1
 
 def get_idf(word):
-    #initialize variables
-    intNumberOfDocumentsWithWord=1
-    intTotalDocuments=0
-    #so we're going to check which pages in the pages.txt file has the word
-    for page in lstPages:
-        strDirectory = page
-        if os.path.isdir(strDirectory):
-            strFile = word+".txt"
-            strPath = os.path.join(strDirectory, strFile)
-            if os.path.isfile(strPage):
-                intNumberOfDocumentsWithWord+=1
-        intTotalDocuments+=1
-    
+    #so we're going to go into the IDF Value folder
+    strFile = word+"idf.txt"
+    ioPath = os.path.join("IDF Values", strFile)
+    ioFile = open(ioPath,"r")
+    fltIDF = float(ioFile.readline())
+    ioFile.close()
     #i forgot to use the log function on this. 
-    return math.log2(intTotalDocuments/(1+intNumberOfDocumentsWithWord))
+    return fltIDF
     
 def get_tf(URL, word):
-    #we make the 2 variables we need
-    fltWord = 1
-    fltTotal = 1
+    fltTF=-3.0
     #we go into the directory with the URL name
-    strDirectory = URL[URL.rfind("/")+1:len(URL)-5]
-    if os.path.isdir(strDirectory):
-        strFile = (word+".txt")
-        strPath = os.path.join(strDirectory, strFile)
-        if os.path.isfile(strPath):
-            #we go into the word file
-            ioFile = open(strPath, "r")
-            #we read that word file
-            fltWord = int(ioFile.read())
-            ioFile.close()
-        #read the total words file
-        strFile = ("total.txt")
-        strPath = os.path.join(strDirectory, strFile)
-        if os.path.isfile(strPath):
-            #we go into the word file
-            ioFile = open(strPath, "r")
-            #we read that word file
-            fltTotal = int(ioFile.read())
-            ioFile.close()
-    return fltWord/fltTotal
+    strDirectory = URL[URL.rfind("/")+1:len(URL)-6]
+    #if it's a directory, go ahead
+    strFile = (word+"tf.txt")
+    strPath = os.path.join(strDirectory, strFile)
+    #we go into the word file
+    ioFile = open(strPath, "r")
+    #we read that word file
+    fltTF = float(ioFile.read())
+    ioFile.close()
+    print(fltTF)
+    return fltTF
 
 def tf_idf(URL, word):
     return math.log10(1+get_tf(URL, word))*get_idf(word)

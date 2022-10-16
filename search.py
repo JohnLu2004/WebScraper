@@ -1,4 +1,6 @@
 import math
+import searchdata
+import os
 def search(phrase, boost):
     strPhrase = input("Enter search word(s): ")
     lstSearchWords = strPhrase.split()
@@ -19,23 +21,26 @@ def search(phrase, boost):
             dicSearchWords[strSearchWord][0]+=1
         intTotalWords+=1
     
-    #Now, we calculate the tf-idf
+    #Now, we calculate the tf-idf for the query
     for strSearchWord in dicSearchWords:
-        dicSearchWords[strSearchWord][2]=math.log2(dicSearchWords[strSearchWord][0]/intTotalWords)*(dicSearchWords[strSearchWord][0])
-    
+        if os.path.isdir("IDF Values"):
+            ioPath = os.path.join("IDF Values", strSearchWord+"idf.txt")
+            if os.path.isfile(ioPath):
+                ioFile = open(ioPath, "r")
+                dicSearchWords[strSearchWord][1]=float(ioFile.readline())
+                ioFile.close()
+
     #this array will keep track of the name of the URL and the cosine similarity score
-    lstSimilarity =[][]
-    file = open("pages.txt","r")
-    strURL = file.readline()
-    intIndex=0
+    lstSimilarity =[]
+    ioFile = open("pages.txt","r")
+    strURL = ioFile.readline()
     while(strURL!=""):
-        lstSimilarity[intIndex][0]=strURL
-        strUrl= file.readline()
-        intIndex+=1
-    
+        lstSimilarity.append([strURL])
+        strURL = ioFile.readline()
+    ioFile.close()
     
     #calculate the cosine similarity for all websites
-    for URL in lstWebsites:
+    for intIndex in range(len(lstSimilarity)):
         #inside a loop, we calculate the stuff we need
         #we'll need some variables to keep track of the answer
         fltNumerator = 0.0
@@ -43,22 +48,21 @@ def search(phrase, boost):
         
         #calculate the numerator    
         #we're gonna want to get the tf-idf of the word from every doc and compare
-        fltNumerator+=query tf-idf * website tf-idf
+
+        for strSearchWord in dicSearchWords:
+            fltNumerator+=dicSearchWords[strSearchWord][1] * dicSearchWords[strSearchWord][1]
         
         #calculate the denominator
-        fltDenominator*=sqrt(queryword1 tf-idf * queryword1 tf-idf + queryword2 tf-idf * queryword2 tf-idf)
-        fltDenominator*=sqrt(doc1word1 tf-idf * docw1word1 tf-idf + doc1word2 tf-idf * doc1word2 tf-idf)
-        fltDenominator*=sqrt(doc2word1 tf-idf * docw2word1 tf-idf + doc2word2 tf-idf * doc2word2 tf-idf)
+        for strSearchWord in dicSearchWords:
+            fltDenominator*=math.sqrt(float(dicSearchWords[strSearchWord][1])*float(searchdata.tf_idf(lstSimilarity[intIndex][0],strSearchWord)))
         
         #calculate the final product
-        url consine similarity = fltNumerator/fltDenominator
+        lstSimilarity[intIndex].append(fltNumerator/fltDenominator)
         
-        
+    
     #do a sort
-    
+    for i in lstSimilarity:
+        print(lstSimilarity[i][0],":",lstSimilarity[i][0])
     #return top 10
-    
-    
-    print(lstSearchWords)
 
 search("hi",True)
