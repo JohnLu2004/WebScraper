@@ -55,14 +55,17 @@ def search(phrase, boost):
         #calculate the denominator
         for strSearchWord in dicSearchWords:
             fltDenominator*=math.sqrt(float(dicSearchWords[strSearchWord][1])*float(searchdata.tf_idf(lstSimilarity[intIndex][0],strSearchWord)))
-        
+
         #calculate the final product
-        lstSimilarity[intIndex].append(fltNumerator/fltDenominator)
+        if(fltDenominator==0):
+            lstSimilarity[intIndex].append(0)
+        else:
+            lstSimilarity[intIndex].append(fltNumerator/fltDenominator)
         
     
     #do a sort
-    for i in lstSimilarity:
-        print(lstSimilarity[i][0],":",lstSimilarity[i][0])
+    for i in range(len(lstSimilarity)):
+        print(lstSimilarity[i][0],":",lstSimilarity[i][1])
     #return top 10
 
 search("hi",True)

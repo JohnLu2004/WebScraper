@@ -137,18 +137,19 @@ def get_idf(word):
     return fltIDF
     
 def get_tf(URL, word):
-    fltTF=-3.0
+    fltTF=0
     #we go into the directory with the URL name
     strDirectory = URL[URL.rfind("/")+1:len(URL)-6]
-    #if it's a directory, go ahead
-    strFile = (word+"tf.txt")
-    strPath = os.path.join(strDirectory, strFile)
-    #we go into the word file
-    ioFile = open(strPath, "r")
-    #we read that word file
-    fltTF = float(ioFile.read())
-    ioFile.close()
-    print(fltTF)
+    if os.path.isdir(strDirectory):
+        #if it's a directory, go ahead
+        ioFile = (word+"tf.txt")
+        ioPath = os.path.join(strDirectory, ioFile)
+        if os.path.isfile(ioPath):
+            #we go into the word file
+            ioFile = open(ioPath, "r")
+            #we read that word file
+            fltTF = float(ioFile.read())
+            ioFile.close()
     return fltTF
 
 def tf_idf(URL, word):
