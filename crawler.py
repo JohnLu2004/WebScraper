@@ -2,6 +2,9 @@ import math
 import webdev
 import searchdata
 import os
+import json
+
+prtDirectory = "crawling"
 
 def crawl(seed):
     #first, make a list of all the links we've gone to
@@ -11,14 +14,21 @@ def crawl(seed):
     dicPages = {}
     dicAllWords={}
     
-    
     dicPages[seed]=searchdata.get_outgoing_links(seed)
     recordInformation(seed,dicAllWords)
+
+    # reset directory "crawling"
+    if os.path.isdir(prtDirectory):
+        for subDirectory in os.listdir(prtDirectory):
+            remakeOlderDirectory(os.path.join(prtDirectory,subDirectory))
+        remakeOlderDirectory(prtDirectory)
+    createNewDirectory(prtDirectory)
+
+    recordInformation(seed)
     for strLink in dicPages[seed]:
         #add these links to the page
         lstQueue.append(strLink)
             
-    
     #while there's still something in the queue
     while(len(lstQueue)>0):
         #each time we go through one link
@@ -39,6 +49,9 @@ def crawl(seed):
     
     #record the pages we've been to
     recordPages(dicPages)
+
+    #record outgoing links
+    createOutGoingLinksFile(dicPages)
     
     #Now that we have the pages we've been to, we can do the easy bit of recording IDF values
     recordIDF(dicAllWords, dicPages)
@@ -59,15 +72,19 @@ def recordInformation(strSubPage, dicAllWords):
     #we'll read the whole thing
     countWord(lstLines, dicWords)
     
-    #delete old directories
+    #create new directory
     strDirectory = strSubPage[strSubPage.rfind("/")+1:len(strSubPage)-5]
     remakeOlderDirectory(strDirectory)
+    createNewDirectory(os.path.join(prtDirectory, strDirectory))
     
     #create a file and then write into it
-    createWordFile(strDirectory,dicWords)
+    createWordFile(os.path.join(prtDirectory, strDirectory),dicWords)
     
     #create a file that keeps track of how many words there are
-    createTotalWordFile(strDirectory,dicWords)
+    createTotalWordFile(os.path.join(prtDirectory, strDirectory),dicWords)
+
+    #create a file that records outgoing links
+    createOutGoingLinksFile(strDirectory)
     
     #store the term frequency
     record_tf(strDirectory,dicWords)
@@ -102,10 +119,16 @@ def remakeOlderDirectory(strDirectory):
     if os.path.isdir(strDirectory):
         files = os.listdir(strDirectory)
         for file in files:
-            os.remove(os.path.join(strDirectory, file))
+            os.remove(os.path.join(strDirectory,file))
         os.rmdir(strDirectory)
     #create new directory
     os.makedirs(strDirectory)
+    return None
+
+def createNewDirectory(strDirectory):
+    if not os.path.exists(strDirectory):
+        os.makedirs(strDirectory)
+    return None
 
 #This function creates files for every word and prints the number of times that word appears
 #O(n) time
@@ -164,9 +187,7 @@ def updateAllWordsDictionary(dicAllWords, dicWords):
 def recordIDF(dicAllWords, dicPages):
     remakeOlderDirectory("IDF Values")
     intTotalDocuments = len(dicPages)
-    print("owo")
     for strWord in dicAllWords:
-        print("owo")
         intNumberOfDocumentsWithWord = 0
         for strURL in dicPages:
             strDirectory = strURL[strURL.rfind("/")+1:len(strURL)-5]
@@ -181,3 +202,11 @@ def recordIDF(dicAllWords, dicPages):
         ioFile = open(ioPath,"w")
         ioFile.write(str(math.log2(intTotalDocuments/(1+intNumberOfDocumentsWithWord))))
         ioFile.close()
+    return None
+
+def createOutGoingLinksFile(dict):
+    #make the file in the general directory
+    file = open( "outgoinglinks.json", "w")
+    json.dump(dict,file)
+    file.close()
+    return None
