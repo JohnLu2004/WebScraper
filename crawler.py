@@ -14,17 +14,16 @@ def crawl(seed):
     dicPages = {}
     dicAllWords={}
     
-    dicPages[seed]=searchdata.get_outgoing_links(seed)
-    recordInformation(seed,dicAllWords)
-
     # reset directory "crawling"
     if os.path.isdir(prtDirectory):
         for subDirectory in os.listdir(prtDirectory):
-            remakeOlderDirectory(os.path.join(prtDirectory,subDirectory))
-        remakeOlderDirectory(prtDirectory)
+            deleteOlderDirectory(os.path.join(prtDirectory,subDirectory))
+        deleteOlderDirectory(prtDirectory)
     createNewDirectory(prtDirectory)
 
-    recordInformation(seed)
+    dicPages[seed]=searchdata.get_outgoing_links(seed)
+    recordInformation(seed,dicAllWords)
+
     for strLink in dicPages[seed]:
         #add these links to the page
         lstQueue.append(strLink)
@@ -74,7 +73,7 @@ def recordInformation(strSubPage, dicAllWords):
     
     #create new directory
     strDirectory = strSubPage[strSubPage.rfind("/")+1:len(strSubPage)-5]
-    remakeOlderDirectory(strDirectory)
+    # deleteOlderDirectory(strDirectory)
     createNewDirectory(os.path.join(prtDirectory, strDirectory))
     
     #create a file and then write into it
@@ -87,7 +86,7 @@ def recordInformation(strSubPage, dicAllWords):
     createOutGoingLinksFile(strDirectory)
     
     #store the term frequency
-    record_tf(strDirectory,dicWords)
+    record_tf(os.path.join(prtDirectory, strDirectory),dicWords)
     
     #update all the words we've seen
     updateAllWordsDictionary(dicAllWords, dicWords)
@@ -115,14 +114,12 @@ def countWord(lstLines, dicWords):
 
 #This function checks if a directory exists and deletes it
 #O(1) time
-def remakeOlderDirectory(strDirectory):
+def deleteOlderDirectory(strDirectory):
     if os.path.isdir(strDirectory):
         files = os.listdir(strDirectory)
         for file in files:
             os.remove(os.path.join(strDirectory,file))
         os.rmdir(strDirectory)
-    #create new directory
-    os.makedirs(strDirectory)
     return None
 
 def createNewDirectory(strDirectory):
@@ -185,16 +182,18 @@ def updateAllWordsDictionary(dicAllWords, dicWords):
             dicAllWords[strWord]=True
 
 def recordIDF(dicAllWords, dicPages):
-    remakeOlderDirectory("IDF Values")
+    deleteOlderDirectory("IDF Values")
+    createNewDirectory("IDF Values")
     intTotalDocuments = len(dicPages)
     for strWord in dicAllWords:
         intNumberOfDocumentsWithWord = 0
         for strURL in dicPages:
             strDirectory = strURL[strURL.rfind("/")+1:len(strURL)-5]
+            strDirectory = os.path.join(prtDirectory,strDirectory)
             if os.path.isdir(strDirectory):
                 ioFile = strWord+".txt"
                 ioPath = os.path.join(strDirectory, ioFile)
-                if os.path.isfile(ioFile):
+                if os.path.isfile(ioPath):
                     intNumberOfDocumentsWithWord+=1
         #enter the idf directory
         ioPath = os.path.join("IDF Values", strWord+"idf.txt")

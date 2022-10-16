@@ -127,12 +127,14 @@ def get_page_rank(URL):
         return -1
 
 def get_idf(word):
+    fltIDF = 0
     #so we're going to go into the IDF Value folder
     strFile = word+"idf.txt"
     ioPath = os.path.join("IDF Values", strFile)
-    ioFile = open(ioPath,"r")
-    fltIDF = float(ioFile.readline())
-    ioFile.close()
+    if os.path.exists(ioPath):
+        ioFile = open(ioPath,"r")
+        fltIDF = float(ioFile.readline())
+        ioFile.close()
     #i forgot to use the log function on this. 
     return fltIDF
     
