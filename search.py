@@ -61,11 +61,23 @@ def search(phrase, boost):
             lstSimilarity[intIndex].append(0)
         else:
             lstSimilarity[intIndex].append(fltNumerator/fltDenominator)
-        
     
+    lstSorted = []
     #do a sort
-    for i in range(len(lstSimilarity)):
-        print(lstSimilarity[i][0],":",lstSimilarity[i][1])
+    for i in range(10):
+        strURL = ""
+        fltSimilarity=0.0
+        intIndex = 0
+        for x in range(len(lstSimilarity)):
+            if(lstSimilarity[x][1]>fltSimilarity):
+                strURL=lstSimilarity[x][0]
+                fltSimilarity=lstSimilarity[x][1]
+                intIndex=x
+        lstSorted.append([strURL])
+        lstSorted[i].append(fltSimilarity)
+        lstSimilarity.pop(intIndex)
     #return top 10
-
+    lstSearchWords.sort()
+    for i in range(len(lstSorted)):
+        print(lstSorted[i][0],":",lstSorted[i][1])
 search("hi",True)

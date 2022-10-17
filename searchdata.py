@@ -141,7 +141,8 @@ def get_idf(word):
 def get_tf(URL, word):
     fltTF=0
     #we go into the directory with the URL name
-    strDirectory = URL[URL.rfind("/")+1:len(URL)-6]
+    strDirectory = "crawling"+"\\"
+    strDirectory += URL[URL.rfind("/")+1:len(URL)-6]
     if os.path.isdir(strDirectory):
         #if it's a directory, go ahead
         ioFile = (word+"tf.txt")
