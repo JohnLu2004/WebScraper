@@ -78,7 +78,7 @@ def recordInformation(strSubPage, dicAllWords):
     createNewDirectory(os.path.join(prtDirectory, strDirectory))
     
     #create a file and then write into it
-    createWordFile(os.path.join(prtDirectory, strDirectory),dicWords)
+    createWordFile(os.path.join(prtDirectory, strDirectory),dicWords,dicAllWords)
     
     #create a file that keeps track of how many words there are
     createTotalWordFile(os.path.join(prtDirectory, strDirectory),dicWords)
@@ -88,9 +88,6 @@ def recordInformation(strSubPage, dicAllWords):
     
     #store the term frequency
     record_tf(os.path.join(prtDirectory, strDirectory),dicWords)
-    
-    #update all the words we've seen
-    updateAllWordsDictionary(dicAllWords, dicWords)
     return None
 
 #This generally updates a dictionary with the number of words inside
@@ -130,13 +127,17 @@ def createNewDirectory(strDirectory):
 
 #This function creates files for every word and prints the number of times that word appears
 #O(n) time
-def createWordFile(strDirectory, dicWords):
+def createWordFile(strDirectory, dicWords, dicAllWords):
     for strWord in dicWords:
         strFileName = strWord
         file_path = os.path.join(strDirectory,(strFileName+".txt"))
         fileout = open(file_path, "w")
         fileout.write(str(dicWords[strWord]))
         fileout.close()
+        if(strWord not in dicAllWords):
+            dicAllWords[strWord]=1
+        else:
+            dicAllWords[strWord]+=1
 
 #This function creates a file for every word term frequency
 #O(n) time
@@ -166,11 +167,6 @@ def createTotalWordFile(strDirectory, dicWords):
     
     fileout.write(str(intTotal))
     fileout.close()
-
-def updateAllWordsDictionary(dicAllWords, dicWords):
-    for strWord in dicWords:
-        if(strWord not in dicAllWords):
-            dicAllWords[strWord]=True
 
 def recordIDF(dicAllWords, dicPages):
     deleteOlderDirectory("IDF Values")
