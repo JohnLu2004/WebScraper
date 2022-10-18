@@ -2,8 +2,7 @@ import math
 import searchdata
 import os
 def search(phrase, boost):
-    strPhrase = input("Enter search word(s): ")
-    lstSearchWords = strPhrase.split()
+    lstSearchWords = phrase.split()
     
     #this variable will be useful for storing query info
     # word : [count,tf-idf]
@@ -56,6 +55,7 @@ def search(phrase, boost):
         for strSearchWord in dicSearchWords:
             fltDenominator*=math.sqrt(float(dicSearchWords[strSearchWord][1])*float(searchdata.tf_idf(lstSimilarity[intIndex][0],strSearchWord)))
 
+
         #calculate the final product
         if(fltDenominator==0):
             lstSimilarity[intIndex].append(0)
@@ -78,8 +78,7 @@ def search(phrase, boost):
         lstSimilarity.pop(intIndex)
     
     #return top 10
-    lstSearchWords.sort()
     for i in range(len(lstSorted)):
         print(lstSorted[i][0],":",lstSorted[i][1])
     return lstSorted
-search("d",True)
+
