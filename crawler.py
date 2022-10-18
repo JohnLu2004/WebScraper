@@ -3,12 +3,10 @@ import webdev
 import searchdata
 import os
 import json
-import time
 
 prtDirectory = "crawling"
 
 def crawl(seed):
-    start = time.time()
     #first, make a list of all the links we've gone to
     #it'll only have the seed first
     lstPagesVisited=[seed]
@@ -58,9 +56,6 @@ def crawl(seed):
     #Now that we have the pages we've been to, we can do the easy bit of recording IDF values
     recordIDF(dicAllWords, dicPages)
     
-    end = time.time()
-    print("time",end-start)
-
     #the number of pages we visited will be the number of pages there are since we visited all of them
     return len(lstPagesVisited)
 
