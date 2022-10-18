@@ -14,6 +14,10 @@ def crawl(seed):
     dicPages = {}
     dicAllWords={}
     
+    #we need to reset what's inside the pages.txt file
+    os.remove("pages.txt")
+    ioPagesFile = open("pages.txt", "a")
+
     # reset directory "crawling"
     if os.path.isdir(prtDirectory):
         for subDirectory in os.listdir(prtDirectory):
@@ -23,15 +27,12 @@ def crawl(seed):
 
     dicPages[seed]=searchdata.get_outgoing_links(seed)
     recordInformation(seed,dicAllWords)
+    ioPagesFile.write(seed+"\n")
 
     for strLink in dicPages[seed]:
         #add these links to the page
         lstQueue.append(strLink)
-
-    #we need to reset what's inside the pages.txt file
-    os.remove("pages.txt")
-    ioPagesFile = open("pages.txt", "a")
-
+    
     #while there's still something in the queue
     while(len(lstQueue)>0):
         #each time we go through one link
