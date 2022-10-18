@@ -4,7 +4,7 @@ import searchdata
 import webdev
 import time
 start = time.time()
-print(crawler.crawl("http://people.scs.carleton.ca/~davidmckenney/tinyfruits/N-0.html"))
+print(crawler.crawl("http://people.scs.carleton.ca/~davidmckenney/fruits/N-0.html"))
 end = time.time()
 print("crawl:",end-start)
 

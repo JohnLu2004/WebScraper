@@ -8,27 +8,36 @@ prtDirectory = "crawling"
 
 def crawl(seed):
     #first, make a list of all the links we've gone to
-    #it'll only have the seed first
     lstPagesVisited=[seed]
+    #make a queue for what pages we should visit
     lstQueue = []
+    #dicPages will record what pages we've been to
     dicPages = {}
+    #dicAllWords will basically record all the words we've been to
     dicAllWords={}
     
     #we need to reset what's inside the pages.txt file
     os.remove("pages.txt")
+    #every time we come across a page, we add it to pages.txt
     ioPagesFile = open("pages.txt", "a")
 
     # reset directory "crawling"
     if os.path.isdir(prtDirectory):
+        #for every directory in the directory, we...
         for subDirectory in os.listdir(prtDirectory):
+            #delete the directory
             deleteOlderDirectory(os.path.join(prtDirectory,subDirectory))
+        #then delete the directory inside the directory
         deleteOlderDirectory(prtDirectory)
+    #then create a new directory
     createNewDirectory(prtDirectory)
 
+    
     dicPages[seed]=searchdata.get_outgoing_links(seed)
     recordInformation(seed,dicAllWords)
     ioPagesFile.write(seed+"\n")
 
+    #for every link in the seed page
     for strLink in dicPages[seed]:
         #add these links to the page
         lstQueue.append(strLink)
@@ -41,16 +50,22 @@ def crawl(seed):
         dicPages[strSubPage]=searchdata.get_outgoing_links(strSubPage)
         #since we've gone on that page, let's add it to the pages we've visited
         lstPagesVisited.append(strSubPage)
+        #We then add the page we've just visited to the text file
         ioPagesFile.write(strSubPage+"\n")
         
         #this function records all the info we need in searchdata.py
         recordInformation(strSubPage,dicAllWords)
+        #we then get rid of the website we've just visitied which is at lstQueue[0]
         lstQueue.pop(0)
+        #for every link inside the page we're on, 
         for strLink in dicPages[strSubPage]:
-            #if it's not in the queue already or not in the pages visited, then
-            if((strLink not in lstQueue) and (strLink not in lstPagesVisited) and (strLink not in dicPages)):
+            #if it's not in the queue already and not a key in dicPages visited, then
+            if((strLink not in lstQueue) and (strLink not in dicPages)):
+                #add that page to the queue
                 lstQueue.append(strLink)
+    #after we're done going through all the pages, close pages.txt
     ioPagesFile.close()
+
     #record outgoing links
     createOutGoingLinksFile(dicPages)
     
@@ -63,10 +78,12 @@ def crawl(seed):
 #this function will write down the info into a file
 #O(n) time due to functions called that are O(n)
 def recordInformation(strSubPage, dicAllWords):
-    #We'll open up the file for reading
+    #break down the lines
     lstLines=webdev.read_url(strSubPage).strip().split("\n")
+    #dicWords will store the number of times a word appears
+    #apple : 3
+    #peach : 5
     dicWords={}
-    blnParse = False
     
     #we'll read the whole thing
     countWord(lstLines, dicWords)
@@ -87,11 +104,11 @@ def recordInformation(strSubPage, dicAllWords):
     
     #store the term frequency
     record_tf(os.path.join(prtDirectory, strDirectory),dicWords)
-    return None
 
 #This generally updates a dictionary with the number of words inside
-#O(n) time
+#O(n^2) time
 def countWord(lstLines, dicWords):
+    #for every line in the html page
     for strLine in lstLines:
         #If it starts with "<p>", then we know it has paragraphs
         if(strLine.strip().endswith("<p>")):
@@ -107,64 +124,87 @@ def countWord(lstLines, dicWords):
             #otherwise, add 1
             else:
                 dicWords[strLine]+=1
-    return None
 
 #This function checks if a directory exists and deletes it
 #O(1) time
 def deleteOlderDirectory(strDirectory):
+    #if the directory exists, then
     if os.path.isdir(strDirectory):
         files = os.listdir(strDirectory)
+        #for every file in the directory
         for file in files:
+            #get rid of it
             os.remove(os.path.join(strDirectory,file))
+        #get rid of the directory
         os.rmdir(strDirectory)
-    return None
 
 #O(1)
 def createNewDirectory(strDirectory):
+    #If the directory doesn't exist
     if not os.path.exists(strDirectory):
+        #make a directory
         os.makedirs(strDirectory)
-    return None
 
 #This function creates files for every word and prints the number of times that word appears
 #O(n) time
 def createWordFile(strDirectory, dicWords, dicAllWords):
+    #for every key value(word) inside the dicWords dictionary,
     for strWord in dicWords:
-        strFileName = strWord
-        file_path = os.path.join(strDirectory,(strFileName+".txt"))
-        fileout = open(file_path, "w")
-        fileout.write(str(dicWords[strWord]))
-        fileout.close()
+        #create the file name
+        strFileName = strWord+".txt"
+        #make the path
+        ioPath = os.path.join(strDirectory,(strFileName))
+        #open the file
+        ioFile = open(ioPath, "w")
+        #write the amount of times that word pops up into the file
+        ioFile.write(str(dicWords[strWord]))
+        #then close the file
+        ioFile.close()
+        #if the word isn't a part of dictionary of all words, then
         if(strWord not in dicAllWords):
+            #make the word a key and make the value(number of times it comes up) 1
             dicAllWords[strWord]=1
+        #if it's already a key but it pops up anyway, then we know the word occurs again
         else:
+            #so we add 1
             dicAllWords[strWord]+=1
 
 #This function creates a file for every word term frequency
 #O(n) time
 def record_tf(strDirectory,dicWords):
-    for strWord in dicWords:
-        #first, we read the number of times the word appears
-        ioPath = os.path.join(strDirectory,("total.txt"))
-        ioFile = open(ioPath, "r")
-        fltTotal = float(ioFile.readline());
-        ioFile.close()       
+    #first, we read the number of total numbre of word
+    ioPath = os.path.join(strDirectory,("total.txt"))
+    ioFile = open(ioPath, "r")
+    fltTotal = float(ioFile.readline());
+    ioFile.close()
+
+    #for every word in dicWords
+    for strWord in dicWords:     
         #now, we record the term frequencies
         ioPath = os.path.join(strDirectory,(strWord+"tf.txt"))
+        #open the file
         ioFile = open(ioPath, "w")
+        #write into it
         ioFile.write(str(float(dicWords[strWord])/fltTotal))
+        #then close the file
         ioFile.close()
 
 #This function creates a file that prints out the total words in a page
 #O(n) time
 def createTotalWordFile(strDirectory, dicWords):
+    #initialize the total
     intTotal=0
+    #find the path
     strPath = os.path.join(strDirectory,("total.txt"))
-    fileout = open(strPath, "w")
+    ioFile = open(strPath, "w")
+    #for every word in dicWords
     for strWord in dicWords:
+        #add the number of times a word apears into inttotal
         intTotal+=dicWords[strWord]
     
-    fileout.write(str(intTotal))
-    fileout.close()
+    #then print out 
+    ioFile.write(str(intTotal))
+    ioFile.close()
 
 #O(n) time
 def recordIDF(dicAllWords,dicPages):
@@ -180,7 +220,6 @@ def recordIDF(dicAllWords,dicPages):
         ioFile = open(ioPath,"w")
         ioFile.write(str(math.log2(intTotalDocuments/(1+dicAllWords[strWord]))))
         ioFile.close()
-    return None
 
 #O(1)
 def createOutGoingLinksFile(dict):
@@ -188,4 +227,3 @@ def createOutGoingLinksFile(dict):
     file = open( "outgoinglinks.json", "w")
     json.dump(dict,file)
     file.close()
-    return None
