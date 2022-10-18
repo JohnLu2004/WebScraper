@@ -37,7 +37,11 @@ def get_outgoing_links(URL):
                 strLink = strBeginning+strLink[2:len(strLink)]
             #now we add the link to our list of links
             lstLinks.append(strLink)
-    return lstLinks
+    
+    if lstLinks != []:
+        return lstLinks
+    else:
+        return None
     
 def get_incoming_links(URL):
     # for John: the previous algorithm is problemetic. While this one seems to work, it's a bit slow. We can think of other ways if time permits.
@@ -52,7 +56,11 @@ def get_incoming_links(URL):
         if URL in get_outgoing_links(link) and not (link in incomingLinks):
             incomingLinks.append(link)
             continue
-    return incomingLinks
+
+    if incomingLinks != []:
+        return incomingLinks
+    else:
+        return None
 
 def get_page_rank(URL):
     # page rank for all the URLs

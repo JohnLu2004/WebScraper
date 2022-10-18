@@ -2,83 +2,92 @@ import math
 import searchdata
 import os
 def search(phrase, boost):
-    lstSearchWords = phrase.split()
+    lstSearchWords = phrase.strip().split()
     
-    #this variable will be useful for storing query info
-    # word : [count,tf-idf]
-    # apple : [5,0.6]
+    # dicSearchWords is used to store query words info
+    #       word : [count, tf-idf of this word in the query]
+    # e.g., apple : [5,0.6]
     dicSearchWords = {}
-    
-    intTotalWords = 0
+    intTotalWords = len(lstSearchWords)
     
     #with this, we can record the number of times a word appears
     #we can also record the total number of words
+    
     for strSearchWord in lstSearchWords:
         if(strSearchWord not in dicSearchWords):
             dicSearchWords[strSearchWord]=[1,0]
         elif(strSearchWord in dicSearchWords):
             dicSearchWords[strSearchWord][0]+=1
-        intTotalWords+=1
     
     #Now, we calculate the tf-idf for the query
     for strSearchWord in dicSearchWords:
-        if os.path.isdir("IDF Values"):
-            ioPath = os.path.join("IDF Values", strSearchWord+"idf.txt")
-            if os.path.isfile(ioPath):
-                ioFile = open(ioPath, "r")
-                dicSearchWords[strSearchWord][1]=float(ioFile.readline())
-                ioFile.close()
+        intTF = dicSearchWords[strSearchWord][0] / intTotalWords
+        # intTFIDF = log2(1+intTF) * intIDF
+        dicSearchWords[strSearchWord][1] = math.log2(1+intTF) * float(searchdata.get_idf(strSearchWord))
 
-    #this array will keep track of the name of the URL and the cosine similarity score
-    lstSimilarity =[]
+    # lstResults is a list of dictionaries
+    # dicPage is each entry in lstResults that tracks url, title and (search) score for the page
+    lstResults =[]
+    dicPage = {}
+
+    # store url and title to lstResults
     ioFile = open("pages.txt","r")
-    strURL = ioFile.readline()
+    strURL = ioFile.readline().strip()
     while(strURL!=""):
-        lstSimilarity.append([strURL])
-        strURL = ioFile.readline()
+        dicPage["url"] = strURL
+        dicPage["title"] = strURL[strURL.rfind("/")+1:len(strURL)-5]
+        lstResults.append(dicPage)
+        strURL = ioFile.readline().strip()
+        dicPage = {}
     ioFile.close()
     
-    #calculate the cosine similarity for all websites
-    for intIndex in range(len(lstSimilarity)):
-        #inside a loop, we calculate the stuff we need
-        #we'll need some variables to keep track of the answer
-        fltNumerator = 0.0
-        fltDenominator = 1.0
-        
-        #calculate the numerator    
-        #we're gonna want to get the tf-idf of the word from every doc and compare
+    # calculate the cosine similarity for all websites
+    for intIndex in range(len(lstResults)):
 
+        fltNumerator = 0
+        fltDenominator = 0
+        fltSumSqrDocTFIDF = 0
+        fltSumSqrQryTFIDF = 0
+            
         for strSearchWord in dicSearchWords:
-            fltNumerator+=dicSearchWords[strSearchWord][1] * dicSearchWords[strSearchWord][1]
+            fltDocTFIDF = float(searchdata.get_tf_idf(lstResults[intIndex]["url"], strSearchWord))
+            fltQryTFIDF = dicSearchWords[strSearchWord][1]
+
+            # calculate the numerator
+            fltNumerator += fltDocTFIDF * fltQryTFIDF
+
+            # calculate the denominator factors
+            fltSumSqrDocTFIDF += fltDocTFIDF**2
+            fltSumSqrQryTFIDF += fltQryTFIDF**2
         
-        #calculate the denominator
-        for strSearchWord in dicSearchWords:
-            fltDenominator*=math.sqrt(float(dicSearchWords[strSearchWord][1])*float(searchdata.tf_idf(lstSimilarity[intIndex][0],strSearchWord)))
+        # calculate the denominator
+        fltDenominator = math.sqrt(fltSumSqrDocTFIDF * fltSumSqrQryTFIDF)
 
-
-        #calculate the final product
-        if(fltDenominator==0):
-            lstSimilarity[intIndex].append(0)
+        # calculate the final result
+        if(fltDenominator == 0):
+            lstResults[intIndex]["score"] = 0
         else:
-            lstSimilarity[intIndex].append(fltNumerator/fltDenominator)
-    
+            score = fltNumerator/fltDenominator
+            if boost:
+                # score multiply by page rank
+                score *= searchdata.get_page_rank(lstResults[intIndex]["url"])
+            lstResults[intIndex]["score"] = score
+
+    # sort top 10 similar pages
     lstSorted = []
-    #do a sort
-    for i in range(10):
-        strURL = ""
-        fltSimilarity=0.0
-        intIndex = 0
-        for x in range(len(lstSimilarity)):
-            if(lstSimilarity[x][1]>fltSimilarity):
-                strURL=lstSimilarity[x][0]
-                fltSimilarity=lstSimilarity[x][1]
-                intIndex=x
-        lstSorted.append([strURL])
-        lstSorted[i].append(fltSimilarity)
-        lstSimilarity.pop(intIndex)
+    if (len(lstResults) >= 10):
+        for i in range(10):
+            fltScore = -1
+            intIndex = 0
+            dicPage = {}
+            for j in range(len(lstResults)):
+                if(float(lstResults[j]["score"]) > fltScore):
+                    dicPage = lstResults[j]
+                    fltScore = float(lstResults[j]["score"])
+                    intIndex = j
+            lstSorted.append(dicPage)
+            lstResults.pop(intIndex)
     
-    #return top 10
-    for i in range(len(lstSorted)):
-        print(lstSorted[i][0],":",lstSorted[i][1])
+    # return top 10 pages
     return lstSorted
 
