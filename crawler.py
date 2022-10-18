@@ -168,29 +168,18 @@ def createTotalWordFile(strDirectory, dicWords):
     fileout.write(str(intTotal))
     fileout.close()
 
-def recordIDF(dicAllWords, dicPages):
+def recordIDF(dicAllWords,dicPages):
     deleteOlderDirectory("IDF Values")
     createNewDirectory("IDF Values")
     intTotalDocuments = len(dicPages)
     #for every word in the dictionary of all words
     for strWord in dicAllWords:
         intNumberOfDocumentsWithWord = 0
-        #For every page in the dictionary
-        for strURL in dicPages:
-            #if it's a directory, then
-            strDirectory = strURL[strURL.rfind("/")+1:len(strURL)-5]
-            strDirectory = os.path.join(prtDirectory,strDirectory)
-            if os.path.isdir(strDirectory):
-                ioFile = strWord+".txt"
-                ioPath = os.path.join(strDirectory, ioFile)
-                #if the file exists, then
-                if os.path.isfile(ioPath):
-                    intNumberOfDocumentsWithWord+=1
         #enter the idf directory
         ioPath = os.path.join("IDF Values", strWord+"idf.txt")
         #create the IDF value for the word
         ioFile = open(ioPath,"w")
-        ioFile.write(str(math.log2(intTotalDocuments/(1+intNumberOfDocumentsWithWord))))
+        ioFile.write(str(math.log2(intTotalDocuments/(1+dicAllWords[strWord]))))
         ioFile.close()
     return None
 
