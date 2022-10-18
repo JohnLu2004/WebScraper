@@ -3,10 +3,12 @@ import webdev
 import searchdata
 import os
 import json
+import time
 
 prtDirectory = "crawling"
 
 def crawl(seed):
+    start = time.time()
     #first, make a list of all the links we've gone to
     #it'll only have the seed first
     lstPagesVisited=[seed]
@@ -56,11 +58,14 @@ def crawl(seed):
     #Now that we have the pages we've been to, we can do the easy bit of recording IDF values
     recordIDF(dicAllWords, dicPages)
     
+    end = time.time()
+    print("time",end-start)
+
     #the number of pages we visited will be the number of pages there are since we visited all of them
     return len(lstPagesVisited)
 
 #this function will write down the info into a file
-#O(n) time due to function called that is O(n)
+#O(n) time due to functions called that are O(n)
 def recordInformation(strSubPage, dicAllWords):
     #We'll open up the file for reading
     lstLines=webdev.read_url(strSubPage).strip().split("\n")
@@ -120,6 +125,7 @@ def deleteOlderDirectory(strDirectory):
         os.rmdir(strDirectory)
     return None
 
+#O(1)
 def createNewDirectory(strDirectory):
     if not os.path.exists(strDirectory):
         os.makedirs(strDirectory)
@@ -147,14 +153,12 @@ def record_tf(strDirectory,dicWords):
         ioPath = os.path.join(strDirectory,("total.txt"))
         ioFile = open(ioPath, "r")
         fltTotal = float(ioFile.readline());
-        ioFile.close()
-        
+        ioFile.close()       
         #now, we record the term frequencies
-        for strWord in dicWords:
-            ioPath = os.path.join(strDirectory,(strWord+"tf.txt"))
-            ioFile = open(ioPath, "w")
-            ioFile.write(str(float(dicWords[strWord])/fltTotal))
-            ioFile.close()
+        ioPath = os.path.join(strDirectory,(strWord+"tf.txt"))
+        ioFile = open(ioPath, "w")
+        ioFile.write(str(float(dicWords[strWord])/fltTotal))
+        ioFile.close()
 
 #This function creates a file that prints out the total words in a page
 #O(n) time
@@ -168,6 +172,7 @@ def createTotalWordFile(strDirectory, dicWords):
     fileout.write(str(intTotal))
     fileout.close()
 
+#O(n) time
 def recordIDF(dicAllWords,dicPages):
     deleteOlderDirectory("IDF Values")
     createNewDirectory("IDF Values")
@@ -183,6 +188,7 @@ def recordIDF(dicAllWords,dicPages):
         ioFile.close()
     return None
 
+#O(1)
 def createOutGoingLinksFile(dict):
     #make the file in the general directory
     file = open( "outgoinglinks.json", "w")
