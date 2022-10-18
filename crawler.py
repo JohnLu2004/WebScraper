@@ -27,7 +27,11 @@ def crawl(seed):
     for strLink in dicPages[seed]:
         #add these links to the page
         lstQueue.append(strLink)
-            
+
+    #we need to reset what's inside the pages.txt file
+    os.remove("pages.txt")
+    ioPagesFile = open("pages.txt", "a")
+
     #while there's still something in the queue
     while(len(lstQueue)>0):
         #each time we go through one link
@@ -36,19 +40,16 @@ def crawl(seed):
         dicPages[strSubPage]=searchdata.get_outgoing_links(strSubPage)
         #since we've gone on that page, let's add it to the pages we've visited
         lstPagesVisited.append(strSubPage)
+        ioPagesFile.write(strSubPage+"\n")
         
         #this function records all the info we need in searchdata.py
         recordInformation(strSubPage,dicAllWords)
-        
         lstQueue.pop(0)
         for strLink in dicPages[strSubPage]:
             #if it's not in the queue already or not in the pages visited, then
             if((strLink not in lstQueue) and (strLink not in lstPagesVisited) and (strLink not in dicPages)):
                 lstQueue.append(strLink)
-    
-    #record the pages we've been to
-    recordPages(dicPages)
-
+    ioPagesFile.close()
     #record outgoing links
     createOutGoingLinksFile(dicPages)
     
@@ -165,16 +166,6 @@ def createTotalWordFile(strDirectory, dicWords):
     
     fileout.write(str(intTotal))
     fileout.close()
-
-#This function records the pages that we've been to
-#O(n) time
-def recordPages(dicPages):
-    #make the file in the general directory
-    file = open("pages.txt","w")
-    #write the page name into the file
-    for strPage in dicPages:
-        file.write(strPage+"\n")
-    file.close()
 
 def updateAllWordsDictionary(dicAllWords, dicWords):
     for strWord in dicWords:
