@@ -55,7 +55,7 @@ def crawl(seed):
     
     #Now that we have the pages we've been to, we can do the easy bit of recording IDF values
     recordIDF(dicAllWords, dicPages)
-    
+
     #the number of pages we visited will be the number of pages there are since we visited all of them
     return len(lstPagesVisited)
 
@@ -64,8 +64,6 @@ def crawl(seed):
 def recordInformation(strSubPage, dicAllWords):
     #We'll open up the file for reading
     lstLines=webdev.read_url(strSubPage).strip().split("\n")
-    intIndex=0
-    lstWords = []
     dicWords={}
     blnParse = False
     

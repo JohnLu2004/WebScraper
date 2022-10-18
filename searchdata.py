@@ -142,7 +142,7 @@ def get_tf(URL, word):
     fltTF=0
     #we go into the directory with the URL name
     prtDirectory = "crawling"
-    strDirectory = os.path.join(prtDirectory,URL[URL.rfind("/")+1:len(URL)-6])
+    strDirectory = os.path.join(prtDirectory,URL[URL.rfind("/")+1:len(URL)-5])
     if os.path.isdir(strDirectory):
         #if it's a directory, go ahead
         ioFile = (word+"tf.txt")
