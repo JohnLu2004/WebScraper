@@ -155,5 +155,5 @@ def get_tf(URL, word):
             ioFile.close()
     return fltTF
 
-def tf_idf(URL, word):
+def get_tf_idf(URL, word):
     return math.log2(1+get_tf(URL, word))*get_idf(word)
