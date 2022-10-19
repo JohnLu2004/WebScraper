@@ -26,9 +26,9 @@ def crawl(seed):
         #for every directory in the directory, we...
         for subDirectory in os.listdir(prtDirectory):
             #delete the directory
-            deleteOlderDirectory(os.path.join(prtDirectory,subDirectory))
+            recursiveDeleteDirectory(os.path.join(prtDirectory,subDirectory))
         #then delete the directory inside the directory
-        deleteOlderDirectory(prtDirectory)
+        recursiveDeleteDirectory(prtDirectory)
     #then create a new directory
     createNewDirectory(prtDirectory)
 
@@ -90,7 +90,7 @@ def recordInformation(strSubPage, dicAllWords):
     
     #create new directory
     strDirectory = strSubPage[strSubPage.rfind("/")+1:len(strSubPage)-5]
-    # deleteOlderDirectory(strDirectory)
+    # recursiveDeleteDirectory(strDirectory)
     createNewDirectory(os.path.join(prtDirectory, strDirectory))
     
     #create a file and then write into it
@@ -126,17 +126,15 @@ def countWord(lstLines, dicWords):
                 dicWords[strLine]+=1
 
 #This function checks if a directory exists and deletes it
-#O(1) time
-def deleteOlderDirectory(strDirectory):
-    #if the directory exists, then
-    if os.path.isdir(strDirectory):
-        files = os.listdir(strDirectory)
-        #for every file in the directory
-        for file in files:
-            #get rid of it
-            os.remove(os.path.join(strDirectory,file))
-        #get rid of the directory
-        os.rmdir(strDirectory)
+#O(n^n) time
+def recursiveDeleteDirectory(strDirectory):
+    for entry in os.listdir(strDirectory):
+        print(entry)
+        if os.path.isdir(os.path.join(strDirectory,entry)):
+            recursiveDeleteDirectory(os.path.join(strDirectory,entry))
+        elif os.path.isfile(os.path.join(strDirectory,entry)):
+            os.remove(os.path.join(strDirectory,entry))
+    os.rmdir(strDirectory)
 
 #O(1)
 def createNewDirectory(strDirectory):
@@ -208,7 +206,7 @@ def createTotalWordFile(strDirectory, dicWords):
 
 #O(n) time
 def recordIDF(dicAllWords,dicPages):
-    deleteOlderDirectory("IDF Values")
+    recursiveDeleteDirectory("IDF Values")
     createNewDirectory("IDF Values")
     intTotalDocuments = len(dicPages)
     #for every word in the dictionary of all words
