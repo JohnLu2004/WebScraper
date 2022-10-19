@@ -23,18 +23,13 @@ def crawl(seed):
 
     # reset directory "crawling"
     if os.path.isdir(prtDirectory):
-        #for every directory in the directory, we...
-        for subDirectory in os.listdir(prtDirectory):
-            #delete the directory
-            recursiveDeleteDirectory(os.path.join(prtDirectory,subDirectory))
-        #then delete the directory inside the directory
         recursiveDeleteDirectory(prtDirectory)
     #then create a new directory
     createNewDirectory(prtDirectory)
 
-    
+    #seed is the key and outgoing links list is the value
     dicPages[seed]=searchdata.get_outgoing_links(seed)
-    recordInformation(seed,dicAllWords)
+    recordInformation(seed,dicPages, dicAllWords)
     ioPagesFile.write(seed+"\n")
 
     #for every link in the seed page
@@ -54,7 +49,7 @@ def crawl(seed):
         ioPagesFile.write(strSubPage+"\n")
         
         #this function records all the info we need in searchdata.py
-        recordInformation(strSubPage,dicAllWords)
+        recordInformation(strSubPage,dicPages, dicAllWords)
         #we then get rid of the website we've just visitied which is at lstQueue[0]
         lstQueue.pop(0)
         #for every link inside the page we're on, 
@@ -77,7 +72,7 @@ def crawl(seed):
 
 #this function will write down the info into a file
 #O(n) time due to functions called that are O(n)
-def recordInformation(strSubPage, dicAllWords):
+def recordInformation(strSubPage, dicPages, dicAllWords):
     #break down the lines
     lstLines=webdev.read_url(strSubPage).strip().split("\n")
     #dicWords will store the number of times a word appears
@@ -101,7 +96,8 @@ def recordInformation(strSubPage, dicAllWords):
 
     #create a file that records outgoing links
     createOutGoingLinksFile(strDirectory)
-    
+    #create a folder that records all outgoing links
+    OutGoingLinksFile(strSubPage,dicPages)
     #store the term frequency
     record_tf(os.path.join(prtDirectory, strDirectory),dicWords)
 
@@ -129,7 +125,6 @@ def countWord(lstLines, dicWords):
 #O(n^n) time
 def recursiveDeleteDirectory(strDirectory):
     for entry in os.listdir(strDirectory):
-        print(entry)
         if os.path.isdir(os.path.join(strDirectory,entry)):
             recursiveDeleteDirectory(os.path.join(strDirectory,entry))
         elif os.path.isfile(os.path.join(strDirectory,entry)):
@@ -225,3 +220,16 @@ def createOutGoingLinksFile(dict):
     file = open( "outgoinglinks.json", "w")
     json.dump(dict,file)
     file.close()
+
+#will be O(n) time
+def OutGoingLinksFile(strPageDirectory,dicPages):
+    #make a folder inside crawling folder inside N-x folder
+    ioPath = os.path.join(prtDirectory,strPageDirectory[strPageDirectory.rfind("/")+1:len(strPageDirectory)-5],"outgoing")
+    os.mkdir(ioPath)
+
+    #then add dic
+    for URL in dicPages[strPageDirectory]:
+        ioFile = open(os.path.join(ioPath,URL[URL.rfind("/")+1:len(URL)-5])+".txt","w")
+        ioFile.write("")
+        ioFile.close()
+
