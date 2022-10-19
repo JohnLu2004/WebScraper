@@ -58,3 +58,9 @@ expected = ['http://people.scs.carleton.ca/~davidmckenney/tinyfruits/N-3.html', 
 result = ['http://people.scs.carleton.ca/~davidmckenney/tinyfruits/N-3.html', 'http://people.scs.carleton.ca/~davidmckenney/tinyfruits/N-4.html', 'http://people.scs.carleton.ca/~davidmckenney/tinyfruits/N-5.html', 'http://people.scs.carleton.ca/~davidmckenney/tinyfruits/N-6.html', 'http://people.scs.carleton.ca/~davidmckenney/tinyfruits/N-8.html', 'http://people.scs.carleton.ca/~davidmckenney/tinyfruits/N-1.html', 'http://people.scs.carleton.ca/~davidmckenney/tinyfruits/N-2.html', 'http://people.scs.carleton.ca/~davidmckenney/tinyfruits/N-7.html']
 
 
+Passed Test #10 checking outgoing links for URL http://people.scs.carleton.ca/~davidmckenney/tinyfruits/N.html
+
+expected = None
+result = None
+
+
