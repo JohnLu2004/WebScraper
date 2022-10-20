@@ -22,7 +22,7 @@ def crawl(seed):
     resetInformation()
 
     #every time we come across a page, we add it to pages.txt
-    ioPagesFile = open("pages.txt", "a")
+    osPagesFile = open("pages.txt", "a")
     lstQueue.append(seed)
 
     
@@ -39,7 +39,7 @@ def crawl(seed):
         #since we've gone on that page, let's add it to the pages we've visited
         lstPagesVisited.append(strSubPage)
         #We then add the page we've just visited to the text file
-        ioPagesFile.write(strSubPage+"\n")
+        osPagesFile.write(strSubPage+"\n")
         
         #this function records all the info we need in searchdata.py
         recordInformation(strSubPage, dicAllWords)
@@ -52,7 +52,7 @@ def crawl(seed):
                 #add that page to the queue
                 lstQueue.append(strLink)
     #after we're done going through all the pages, close pages.txt
-    ioPagesFile.close()
+    osPagesFile.close()
 
     #record outgoing links and incoming links
     recordOutgoingLinksFile(dicPages)
@@ -157,13 +157,13 @@ def recordWordCount(strDirectory, dicWords, dicAllWords):
         #create the file name
         strFileName = strWord+".txt"
         #make the path
-        ioPath = os.path.join(strDirectory,(strFileName))
+        osPath = os.path.join(strDirectory,(strFileName))
         #open the file
-        ioFile = open(ioPath, "w")
+        osFile = open(osPath, "w")
         #write the amount of times that word pops up into the file
-        ioFile.write(str(dicWords[strWord]))
+        osFile.write(str(dicWords[strWord]))
         #then close the file
-        ioFile.close()
+        osFile.close()
         #if the word isn't a part of dictionary of all words, then
         if(strWord not in dicAllWords):
             #make the word a key and make the value(number of times it comes up) 1
@@ -177,21 +177,21 @@ def recordWordCount(strDirectory, dicWords, dicAllWords):
 #O(n) time
 def record_tf(strDirectory,dicWords):
     #first, we read the number of total numbre of word
-    ioPath = os.path.join(strDirectory,("total.txt"))
-    ioFile = open(ioPath, "r")
-    fltTotal = float(ioFile.readline());
-    ioFile.close()
+    osPath = os.path.join(strDirectory,("total.txt"))
+    osFile = open(osPath, "r")
+    fltTotal = float(osFile.readline());
+    osFile.close()
 
     #for every word in dicWords
     for strWord in dicWords:     
         #now, we record the term frequencies
-        ioPath = os.path.join(strDirectory,(strWord+"tf.txt"))
+        osPath = os.path.join(strDirectory,(strWord+"tf.txt"))
         #open the file
-        ioFile = open(ioPath, "w")
+        osPath = open(osPath, "w")
         #write into it
-        ioFile.write(str(float(dicWords[strWord])/fltTotal))
+        osPath.write(str(float(dicWords[strWord])/fltTotal))
         #then close the file
-        ioFile.close()
+        osPath.close()
 
 #This function creates a file that prints out the total words in a page
 #O(n) time
@@ -200,15 +200,15 @@ def recordTotalWordCount(strDirectory, dicWords):
     intTotal=0
     #find the path
     strPath = os.path.join(strDirectory,("total.txt"))
-    ioFile = open(strPath, "w")
+    osFile = open(strPath, "w")
     #for every word in dicWords
     for strWord in dicWords:
         #add the number of times a word apears into inttotal
         intTotal+=dicWords[strWord]
     
     #then print out 
-    ioFile.write(str(intTotal))
-    ioFile.close()
+    osFile.write(str(intTotal))
+    osFile.close()
 
 #O(n) time
 def recordIDF(dicAllWords,dicPages):
@@ -217,11 +217,11 @@ def recordIDF(dicAllWords,dicPages):
     for strWord in dicAllWords:
         intNumberOfDocumentsWithWord = 0
         #enter the idf directory
-        ioPath = os.path.join("IDF Values", strWord+"idf.txt")
+        osPath = os.path.join("IDF Values", strWord+"idf.txt")
         #create the IDF value for the word
-        ioFile = open(ioPath,"w")
-        ioFile.write(str(math.log2(intTotalDocuments/(1+dicAllWords[strWord]))))
-        ioFile.close()
+        osPath = open(osPath,"w")
+        osPath.write(str(math.log2(intTotalDocuments/(1+dicAllWords[strWord]))))
+        osPath.close()
 
 def getOutgoingLinks(url):
     lstLines = webdev.read_url(url).strip().split("\n")
