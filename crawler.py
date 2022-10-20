@@ -17,30 +17,14 @@ def crawl(seed):
     dicAllWords={}
     #dicIncomingLinks will record incoming links of the pages
     dicIncomingLinks = {}
-    
-    #we need to reset what's inside the pages.txt file
-    os.remove("pages.txt")
-    #every time we come across a page, we add it to pages.txt
-    ioPagesFile = open("pages.txt", "a")
 
     # reset directory "crawling"
-    if os.path.isdir(prtDirectory):
-        recursiveDeleteDirectory(prtDirectory)
-    #then create a new directory
-    createNewDirectory(prtDirectory)
+    resetInformation()
 
-    #seed is the key and outgoing links list is the value
-    outGoingLinks = getOutgoingLinks(seed)
-    dicPages[seed]= outGoingLinks
-    for url in outGoingLinks:
-        dictValueAppendElement(dicIncomingLinks, url, seed)
-    recordInformation(seed, dicAllWords)
-    ioPagesFile.write(seed+"\n")
+    #every time we come across a page, we add it to pages.txt
+    ioPagesFile = open("pages.txt", "a")
+    lstQueue.append(seed)
 
-    #for every link in the seed page
-    for strLink in dicPages[seed]:
-        #add these links to the page
-        lstQueue.append(strLink)
     
     #while there's still something in the queue
     while(len(lstQueue)>0):
@@ -84,6 +68,21 @@ def crawl(seed):
 
     #the number of pages we visited will be the number of pages there are since we visited all of them
     return len(lstPagesVisited)
+
+#O(n^m) due to finite number of processes
+def resetInformation():
+    # reset directory "crawling"
+    if os.path.isdir(prtDirectory):
+        recursiveDeleteDirectory(prtDirectory)
+    #then create a new directory
+    createNewDirectory(prtDirectory)
+    #reset directory "IDF Values"
+    if os.path.isdir("IDF Values"):
+        recursiveDeleteDirectory("IDF Values")
+    #then create a new directory
+    createNewDirectory("IDF Values")
+    #we need to reset what's inside the pages.txt file
+    os.remove("pages.txt")
 
 #this function will write down the info into a file
 #O(n) time due to functions called that are O(n)
@@ -229,9 +228,7 @@ def recordIDF(dicAllWords,dicPages):
         ioFile.close()
 
 def getOutgoingLinks(url):
-    #We'll open up the file for reading
-    lstLines=webdev.read_url(url).strip().split("\n")
-    
+    lstLines = webdev.read_url(url).strip().split("\n")
     #I'll also have 2 variables to keep track of the beginning and end of a link
     intStart = 0
     intEnd = 0
