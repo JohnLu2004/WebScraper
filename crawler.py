@@ -48,17 +48,15 @@ def crawl(seed):
         #for every link inside the page we're on, 
         for strLink in dicPages[strSubPage]:
             #if it's not in the queue already and not a key in dicPages visited, then
-            if((strLink not in lstQueue) and (strLink not in dicPages)):
+            if((strLink not in dicPages) and (strLink not in lstQueue)):
                 #add that page to the queue
                 lstQueue.append(strLink)
     #after we're done going through all the pages, close pages.txt
     ioPagesFile.close()
 
-    #record outgoing links
-    createOutgoingLinksFile(dicPages)
-
-    #record incoming links
-    createIncomingLinksFile(dicIncomingLinks)
+    #record outgoing links and incoming links
+    recordOutgoingLinksFile(dicPages)
+    recordIncomingLinksFile(dicIncomingLinks)
     
     #Now that we have the pages we've been to, we can do the easy bit of recording IDF values
     recordIDF(dicAllWords, dicPages)
@@ -106,10 +104,10 @@ def recordInformation(strSubPage, dicAllWords):
     createNewDirectory(strDirectory)
     
     #create a file and then write into it
-    createWordFile(strDirectory,dicWords,dicAllWords)
+    recordWordCount(strDirectory,dicWords,dicAllWords)
     
     #create a file that keeps track of how many words there are
-    createTotalWordFile(strDirectory,dicWords)
+    recordTotalWordCount(strDirectory,dicWords)
 
     #store the term frequency
     record_tf(strDirectory,dicWords)
@@ -153,7 +151,7 @@ def createNewDirectory(strDirectory):
 
 #This function creates files for every word and prints the number of times that word appears
 #O(n) time
-def createWordFile(strDirectory, dicWords, dicAllWords):
+def recordWordCount(strDirectory, dicWords, dicAllWords):
     #for every key value(word) inside the dicWords dictionary,
     for strWord in dicWords:
         #create the file name
@@ -197,7 +195,7 @@ def record_tf(strDirectory,dicWords):
 
 #This function creates a file that prints out the total words in a page
 #O(n) time
-def createTotalWordFile(strDirectory, dicWords):
+def recordTotalWordCount(strDirectory, dicWords):
     #initialize the total
     intTotal=0
     #find the path
@@ -214,8 +212,6 @@ def createTotalWordFile(strDirectory, dicWords):
 
 #O(n) time
 def recordIDF(dicAllWords,dicPages):
-    recursiveDeleteDirectory("IDF Values")
-    createNewDirectory("IDF Values")
     intTotalDocuments = len(dicPages)
     #for every word in the dictionary of all words
     for strWord in dicAllWords:
@@ -258,13 +254,13 @@ def getOutgoingLinks(url):
     return lstLinks
 
 #O(1)
-def createOutgoingLinksFile(dict):
+def recordOutgoingLinksFile(dict):
     #make the file in the general directory
     file = open( "outgoinglinks.json", "w")
     json.dump(dict,file)
     file.close()
 
-def createIncomingLinksFile(dict):
+def recordIncomingLinksFile(dict):
     #make the file in the general directory
     file = open( "incominglinks.json", "w")
     json.dump(dict,file)
