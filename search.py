@@ -1,6 +1,6 @@
 import math
 import searchdata
-import os
+
 def search(phrase, boost):
     lstSearchWords = phrase.strip().split()
     
@@ -69,7 +69,7 @@ def search(phrase, boost):
         else:
             score = fltNumerator/fltDenominator
             if boost:
-                # score multiply by page rank
+                # score multiplied by page rank
                 score *= searchdata.get_page_rank(lstResults[intIndex]["url"])
             lstResults[intIndex]["score"] = score
 

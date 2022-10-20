@@ -1,13 +1,15 @@
-
+import time
 import testingtools
 import crawler
 import searchdata
 import search
-
+start = time.time()
 #Performing crawl starting at seed http://people.scs.carleton.ca/~davidmckenney/fruits3/N-0.html
 crawler.crawl('http://people.scs.carleton.ca/~davidmckenney/fruits3/N-0.html')
+end = time.time()
+print("crawling time: ", end-start)
 
-
+start = time.time()
 output = open('fruits3-all-outgoing-failed.txt', 'w')
 success_output = open('fruits3-all-outgoing-passed.txt', 'w')
 
@@ -677,14 +679,15 @@ else:
 output.close()
 success_output.close()
 
+end = time.time()
+print("outgoing links: ",end-start)
 
 
 
 
 
 
-
-
+start = time.time()
 output = open('fruits3-all-incoming-failed.txt', 'w')
 success_output = open('fruits3-all-incoming-passed.txt', 'w')
 
@@ -1354,13 +1357,14 @@ else:
 output.close()
 success_output.close()
 
+end = time.time()
+print("incoming links: ",end-start)
 
 
 
 
 
-
-
+start = time.time()
 
 output = open('fruits3-all-pagerank-failed.txt', 'w')
 success_output = open('fruits3-all-pagerank-passed.txt', 'w')
@@ -2032,12 +2036,13 @@ output.close()
 success_output.close()
 
 
+end = time.time()
+print("page rank: ",end-start)
 
 
 
 
-
-
+start = time.time()
 
 output = open('fruits3-all-idf-failed.txt', 'w')
 success_output = open('fruits3-all-idf-passed.txt', 'w')
@@ -2227,13 +2232,14 @@ else:
 output.close()
 success_output.close()
 
+end = time.time()
+print("IDF: ",end-start)
 
 
 
 
 
-
-
+start = time.time()
 
 output = open('fruits3-all-tf-failed.txt', 'w')
 success_output = open('fruits3-all-tf-passed.txt', 'w')
@@ -3815,12 +3821,13 @@ output.close()
 success_output.close()
 
 
+end = time.time()
+print("TF: ",end-start)
 
 
 
 
-
-
+start = time.time()
 
 output = open('fruits3-all-tfidf-failed.txt', 'w')
 success_output = open('fruits3-all-tfidf-passed.txt', 'w')
@@ -5402,12 +5409,13 @@ output.close()
 success_output.close()
 
 
+end = time.time()
+print("TF-IDF: ",end-start)
 
 
 
 
-
-
+start = time.time()
 
 output = open('fruits3-all-search-failed.txt', 'w')
 success_output = open('fruits3-all-search-passed.txt', 'w')
@@ -6086,3 +6094,6 @@ success_output.close()
 
 output.close()
 success_output.close()
+
+end = time.time()
+print("search: ",end-start)

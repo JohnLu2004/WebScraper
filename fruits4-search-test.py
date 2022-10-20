@@ -1,4 +1,4 @@
-
+import time
 import testingtools
 import crawler
 import searchdata
@@ -8,6 +8,7 @@ success_output = open('fruits4-search-passed.txt', 'w')
 
 #Performing crawl starting at seed http://people.scs.carleton.ca/~davidmckenney/fruits4/N-0.html
 crawler.crawl('http://people.scs.carleton.ca/~davidmckenney/fruits4/N-0.html')
+start = time.time()
 #Test #0 checking search results for 'lime pear kiwi apple cherry' and boost = False
 expected = [{'url': 'http://people.scs.carleton.ca/~davidmckenney/fruits4/N-364.html', 'title': 'N-364', 'score': 1.0000000000000002}, {'url': 'http://people.scs.carleton.ca/~davidmckenney/fruits4/N-784.html', 'title': 'N-784', 'score': 0.998615035917524}, {'url': 'http://people.scs.carleton.ca/~davidmckenney/fruits4/N-470.html', 'title': 'N-470', 'score': 0.9946908365146312}, {'url': 'http://people.scs.carleton.ca/~davidmckenney/fruits4/N-904.html', 'title': 'N-904', 'score': 0.994645368347933}, {'url': 'http://people.scs.carleton.ca/~davidmckenney/fruits4/N-656.html', 'title': 'N-656', 'score': 0.9946069422766785}, {'url': 'http://people.scs.carleton.ca/~davidmckenney/fruits4/N-244.html', 'title': 'N-244', 'score': 0.9945025623505718}, {'url': 'http://people.scs.carleton.ca/~davidmckenney/fruits4/N-551.html', 'title': 'N-551', 'score': 0.9944221062091793}, {'url': 'http://people.scs.carleton.ca/~davidmckenney/fruits4/N-804.html', 'title': 'N-804', 'score': 0.9935144205534002}, {'url': 'http://people.scs.carleton.ca/~davidmckenney/fruits4/N-770.html', 'title': 'N-770', 'score': 0.9932098784326342}, {'url': 'http://people.scs.carleton.ca/~davidmckenney/fruits4/N-509.html', 'title': 'N-509', 'score': 0.9928907555554024}]
 result = search.search('lime pear kiwi apple cherry',False)
@@ -686,3 +687,7 @@ else:
 
 output.close()
 success_output.close()
+
+end = time.time()
+print("search-test-fruits4:",end-start)
+

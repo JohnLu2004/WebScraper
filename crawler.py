@@ -1,8 +1,8 @@
 import math
 import webdev
-import searchdata
 import os
 import json
+import matmult
 
 prtDirectory = "crawling"
 
@@ -28,8 +28,8 @@ def crawl(seed):
     createNewDirectory(prtDirectory)
 
     #seed is the key and outgoing links list is the value
-    dicPages[seed]=searchdata.get_outgoing_links(seed)
-    recordInformation(seed,dicPages, dicAllWords)
+    dicPages[seed]=getOutgoingLinks(seed)
+    recordInformation(seed, dicAllWords)
     ioPagesFile.write(seed+"\n")
 
     #for every link in the seed page
@@ -42,14 +42,14 @@ def crawl(seed):
         #each time we go through one link
         strSubPage = lstQueue[0]
         #If the links found in page aren't in the queue or in the pages visited, add it to the list
-        dicPages[strSubPage]=searchdata.get_outgoing_links(strSubPage)
+        dicPages[strSubPage]=getOutgoingLinks(strSubPage)
         #since we've gone on that page, let's add it to the pages we've visited
         lstPagesVisited.append(strSubPage)
         #We then add the page we've just visited to the text file
         ioPagesFile.write(strSubPage+"\n")
         
         #this function records all the info we need in searchdata.py
-        recordInformation(strSubPage,dicPages, dicAllWords)
+        recordInformation(strSubPage, dicAllWords)
         #we then get rid of the website we've just visitied which is at lstQueue[0]
         lstQueue.pop(0)
         #for every link inside the page we're on, 
@@ -67,12 +67,15 @@ def crawl(seed):
     #Now that we have the pages we've been to, we can do the easy bit of recording IDF values
     recordIDF(dicAllWords, dicPages)
 
+    #create page rank file
+    createPageRankFile()
+
     #the number of pages we visited will be the number of pages there are since we visited all of them
     return len(lstPagesVisited)
 
 #this function will write down the info into a file
 #O(n) time due to functions called that are O(n)
-def recordInformation(strSubPage, dicPages, dicAllWords):
+def recordInformation(strSubPage, dicAllWords):
     #break down the lines
     lstLines=webdev.read_url(strSubPage).strip().split("\n")
     #dicWords will store the number of times a word appears
@@ -83,23 +86,22 @@ def recordInformation(strSubPage, dicPages, dicAllWords):
     #we'll read the whole thing
     countWord(lstLines, dicWords)
     
-    #create new directory
+    # create new directory
     strDirectory = strSubPage[strSubPage.rfind("/")+1:len(strSubPage)-5]
+    # joining parent directory
+    strDirectory = os.path.join(prtDirectory, strDirectory)
+
     # recursiveDeleteDirectory(strDirectory)
-    createNewDirectory(os.path.join(prtDirectory, strDirectory))
+    createNewDirectory(strDirectory)
     
     #create a file and then write into it
-    createWordFile(os.path.join(prtDirectory, strDirectory),dicWords,dicAllWords)
+    createWordFile(strDirectory,dicWords,dicAllWords)
     
     #create a file that keeps track of how many words there are
-    createTotalWordFile(os.path.join(prtDirectory, strDirectory),dicWords)
+    createTotalWordFile(strDirectory,dicWords)
 
-    #create a file that records outgoing links
-    createOutGoingLinksFile(strDirectory)
-    #create a folder that records all outgoing links
-    OutGoingLinksFile(strSubPage,dicPages)
     #store the term frequency
-    record_tf(os.path.join(prtDirectory, strDirectory),dicWords)
+    record_tf(strDirectory,dicWords)
 
 #This generally updates a dictionary with the number of words inside
 #O(n^2) time
@@ -214,6 +216,38 @@ def recordIDF(dicAllWords,dicPages):
         ioFile.write(str(math.log2(intTotalDocuments/(1+dicAllWords[strWord]))))
         ioFile.close()
 
+def getOutgoingLinks(url):
+    #We'll open up the file for reading
+    lstLines=webdev.read_url(url).strip().split("\n")
+    
+    #I'll also have 2 variables to keep track of the beginning and end of a link
+    intStart = 0
+    intEnd = 0
+    
+    strBeginning = url[0:url.rfind("/")+1]
+    strLink = ""
+    lstLinks=[]
+    
+    #we'll read the whole thing
+    for strLine in lstLines:
+        #If it starts with "<a href", then we know it has a link to another pages
+        if(strLine.startswith("<a href")):
+            #find the index of the first "
+            intStart = strLine.find('"')
+            #find the index of the last "
+            intEnd = strLine.rfind('"')
+            #everything in between the " " will be the link
+            strLink = strLine[intStart+1:intEnd]
+            
+            #If it's a relative link(it starts with "./", we'll add the absolute start onto the name of it
+            #Instead of "./N-0.html
+            if(strLink.startswith("./")):
+                #It will be https://scs.carleton.N-0.html now I think
+                strLink = strBeginning+strLink[2:len(strLink)]
+            #now we add the link to our list of links
+            lstLinks.append(strLink)
+    return lstLinks
+
 #O(1)
 def createOutGoingLinksFile(dict):
     #make the file in the general directory
@@ -221,15 +255,79 @@ def createOutGoingLinksFile(dict):
     json.dump(dict,file)
     file.close()
 
-#will be O(n) time
-def OutGoingLinksFile(strPageDirectory,dicPages):
-    #make a folder inside crawling folder inside N-x folder
-    ioPath = os.path.join(prtDirectory,strPageDirectory[strPageDirectory.rfind("/")+1:len(strPageDirectory)-5],"outgoing")
-    os.mkdir(ioPath)
+# create a dictionary with all the urls and their page rank and store it in a json file 
+def createPageRankFile():
+    # page rank for all the URLs
+    alpha = 0.1
+    euclideanDistThreshold = 0.0001
+    
+    row = [] # row of the adjacency matrix
+    adjacencyMatrix = [] # N * N matrix
+    dict = {} # id -> link, e.g., 1:'http://.../N-3.html'
+    reversedDict = {} # link -> id, e.g., 'http://.../N-3.html':1
+    
+    # create dict and reverse dict
+    count = 0
+    filein = open("pages.txt", "r")
+    link = filein.readline().strip()
+    while link != "":
+        dict[count] = link
+        reversedDict[link] = count
+        count += 1
+        link = filein.readline().strip()
+    filein.close()
+    
+    # load outgoing links
+    file = open("outgoinglinks.json", "r")
+    outgoinglinks = json.load(file)
+    file.close()
 
-    #then add dic
-    for URL in dicPages[strPageDirectory]:
-        ioFile = open(os.path.join(ioPath,URL[URL.rfind("/")+1:len(URL)-5])+".txt","w")
-        ioFile.write("")
-        ioFile.close()
+    # create adjacency matrix
+    adjacencyMatrix = [-1] * len(dict)
+    row = [-1] * len(dict)
+    for id in dict:
+        for link in reversedDict:
+            if link in outgoinglinks[dict[id]]:
+                row[reversedDict[link]] = 1
+            else:
+                row[reversedDict[link]] = 0
+        adjacencyMatrix[id] = row
+        row = [-1] * len(dict)
+    
+    # scaled adjacency matrix after adding alpha/N to each entry
+    count = 0
+    for i in range(len(adjacencyMatrix)):
+        for j in range(len(adjacencyMatrix[0])):
+            if adjacencyMatrix[i][j] == 1:
+                count += 1
+        if count == 0:
+            for j in range(len(adjacencyMatrix[0])):
+                adjacencyMatrix[i][j] = (1 / len(adjacencyMatrix)) * (1-alpha) + (alpha / len(adjacencyMatrix))
+        else:
+            for j in range(len(adjacencyMatrix[0])):
+                adjacencyMatrix[i][j] = (adjacencyMatrix[i][j] / count) * (1-alpha) + (alpha / len(adjacencyMatrix))
+        count = 0
+    
+    # power iteration with adjacency matrix
+    # initialize iterating vector
+    iteratingVector = [[1 / len(adjacencyMatrix)] * len(adjacencyMatrix)]
+    
+    # use modules of matmult in tutorial4 to calculate
+    finalPageRankVector = matmult.mult_matrix(iteratingVector, adjacencyMatrix) 
+    dist = matmult.euclidean_dist(finalPageRankVector, iteratingVector)
 
+    # iterate until dist < euclideanDistThreshold when we find the stable final page rank vector
+    while dist >= euclideanDistThreshold:
+        iteratingVector = finalPageRankVector
+        finalPageRankVector = matmult.mult_matrix(iteratingVector, adjacencyMatrix)
+        dist = matmult.euclidean_dist(finalPageRankVector, iteratingVector)
+    
+    # write a json file contains all the page urls and their page rank.
+    # key = url, value = page rank
+    dicPageRank = {}
+    for url in reversedDict:
+        # reversedDict: key=url, value=id. So finalPageRankVector[0][id] is the page rank result for the url with this id
+        dicPageRank[url] = finalPageRankVector[0][reversedDict[url]]
+    fileout = open("pagerank.json", "w")
+    json.dump(dicPageRank,fileout)
+    fileout.close()
