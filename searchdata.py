@@ -1,3 +1,7 @@
+import io
+from tokenize import Intnumber
+from turtle import setworldcoordinates
+from xmlrpc.server import list_public_methods
 import webdev
 import os
 import math
@@ -5,9 +9,9 @@ import json
 
 #this function searches outgoing links from the outgoinglinks.json file
 def get_outgoing_links(URL):
-    filein = open("outgoinglinks.json", "r")
-    dicOutgoingLinks = json.load(filein)
-    filein.close()
+    osFile = open("outgoinglinks.json", "r")
+    dicOutgoingLinks = json.load(osFile)
+    osFile.close()
     
     if URL in dicOutgoingLinks:
         return dicOutgoingLinks[URL]
@@ -15,9 +19,9 @@ def get_outgoing_links(URL):
         return None
     
 def get_incoming_links(URL):
-    filein = open("incominglinks.json", "r")
-    dicIncomingLinks = json.load(filein)
-    filein.close()
+    osFile = open("incominglinks.json", "r")
+    dicIncomingLinks = json.load(osFile)
+    osFile.close()
     
     if URL in dicIncomingLinks:
         return dicIncomingLinks[URL]
@@ -25,9 +29,9 @@ def get_incoming_links(URL):
         return None
 
 def get_page_rank(URL):
-    filein = open("pagerank.json", "r")
-    dicPageRank = json.load(filein)
-    filein.close()
+    osFile = open("pagerank.json", "r")
+    dicPageRank = json.load(osFile)
+    osFile.close()
 
     if URL in dicPageRank:
         return dicPageRank[URL]
@@ -38,11 +42,11 @@ def get_idf(word):
     fltIDF = 0
     #so we're going to go into the IDF Value folder
     strFile = word+"idf.txt"
-    ioPath = os.path.join("IDF Values", strFile)
-    if os.path.exists(ioPath):
-        ioFile = open(ioPath,"r")
-        fltIDF = float(ioFile.readline())
-        ioFile.close()
+    osPath = os.path.join("IDF Values", strFile)
+    if os.path.exists(osPath):
+        osFile = open(osPath,"r")
+        fltIDF = float(osFile.readline())
+        osFile.close()
     #i forgot to use the log function on this. 
     return fltIDF
     
@@ -50,17 +54,17 @@ def get_tf(URL, word):
     fltTF=0
     #we go into the directory with the URL name
     prtDirectory = "crawling"
-    strDirectory = os.path.join(prtDirectory,URL[URL.rfind("/")+1:len(URL)-5])
-    if os.path.isdir(strDirectory):
+    osDirectory = os.path.join(prtDirectory,URL[URL.rfind("/")+1:len(URL)-5])
+    if os.path.isdir(osDirectory):
         #if it's a directory, go ahead
-        ioFile = (word+"tf.txt")
-        ioPath = os.path.join(strDirectory, ioFile)
-        if os.path.isfile(ioPath):
+        osFile = (word+"tf.txt")
+        osPath = os.path.join(osDirectory, osFile)
+        if os.path.isfile(osPath):
             #we go into the word file
-            ioFile = open(ioPath, "r")
+            osFile = open(osPath, "r")
             #we read that word file
-            fltTF = float(ioFile.read())
-            ioFile.close()
+            fltTF = float(osFile.read())
+            osFile.close()
     return fltTF
 
 def get_tf_idf(URL, word):

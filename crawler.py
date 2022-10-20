@@ -4,20 +4,20 @@ import os
 import json
 import matmult
 
-prtDirectory = "crawling"
+osParentDirectory = "crawling"
 
 def crawl(seed):
     #first, make a list of all the links we've gone to
     lstPagesVisited=[seed]
     #make a queue for what pages we should visit
     lstQueue = []
-    #dicPages will record what pages we've been to
-    dicPages = {}
-    #dicAllWords will basically record all the words we've been to
-    dicAllWords={}
+    #dicOutgoingLinks will record what pages we've been to
+    dicOutgoingLinks = {}
     #dicIncomingLinks will record incoming links of the pages
     dicIncomingLinks = {}
-
+    #dicAllWords will basically record all the words we've been to
+    dicAllWords={}
+    
     # reset directory "crawling"
     resetInformation()
 
@@ -32,7 +32,7 @@ def crawl(seed):
         strSubPage = lstQueue[0]
         #If the links found in page aren't in the queue or in the pages visited, add it to the list
         outGoingLinks = getOutgoingLinks(strSubPage)
-        dicPages[strSubPage] = outGoingLinks
+        dicOutgoingLinks[strSubPage] = outGoingLinks
         # add the links to the dictionary of incoming list
         for url in outGoingLinks:
             dictValueAppendElement(dicIncomingLinks, url, strSubPage)
@@ -46,20 +46,20 @@ def crawl(seed):
         #we then get rid of the website we've just visitied which is at lstQueue[0]
         lstQueue.pop(0)
         #for every link inside the page we're on, 
-        for strLink in dicPages[strSubPage]:
-            #if it's not in the queue already and not a key in dicPages visited, then
-            if((strLink not in dicPages) and (strLink not in lstQueue)):
+        for strLink in dicOutgoingLinks[strSubPage]:
+            #if it's not in the queue already and not a key in dicOutgoingLinks visited, then
+            if((strLink not in dicOutgoingLinks) and (strLink not in lstQueue)):
                 #add that page to the queue
                 lstQueue.append(strLink)
     #after we're done going through all the pages, close pages.txt
     osPagesFile.close()
 
     #record outgoing links and incoming links
-    recordOutgoingLinksFile(dicPages)
+    recordOutgoingLinksFile(dicOutgoingLinks)
     recordIncomingLinksFile(dicIncomingLinks)
     
     #Now that we have the pages we've been to, we can do the easy bit of recording IDF values
-    recordIDF(dicAllWords, dicPages)
+    recordIDF(dicAllWords, dicOutgoingLinks)
 
     #create page rank file
     createPageRankFile()
@@ -70,10 +70,10 @@ def crawl(seed):
 #O(n^m) due to finite number of processes
 def resetInformation():
     # reset directory "crawling"
-    if os.path.isdir(prtDirectory):
-        recursiveDeleteDirectory(prtDirectory)
+    if os.path.isdir(osParentDirectory):
+        recursiveDeleteDirectory(osParentDirectory)
     #then create a new directory
-    createNewDirectory(prtDirectory)
+    createNewDirectory(osParentDirectory)
     #reset directory "IDF Values"
     if os.path.isdir("IDF Values"):
         recursiveDeleteDirectory("IDF Values")
@@ -98,7 +98,7 @@ def recordInformation(strSubPage, dicAllWords):
     # create new directory
     strDirectory = strSubPage[strSubPage.rfind("/")+1:len(strSubPage)-5]
     # joining parent directory
-    strDirectory = os.path.join(prtDirectory, strDirectory)
+    strDirectory = os.path.join(osParentDirectory, strDirectory)
 
     # recursiveDeleteDirectory(strDirectory)
     createNewDirectory(strDirectory)
@@ -211,8 +211,8 @@ def recordTotalWordCount(strDirectory, dicWords):
     osFile.close()
 
 #O(n) time
-def recordIDF(dicAllWords,dicPages):
-    intTotalDocuments = len(dicPages)
+def recordIDF(dicAllWords,dicOutgoingLinks):
+    intTotalDocuments = len(dicOutgoingLinks)
     #for every word in the dictionary of all words
     for strWord in dicAllWords:
         intNumberOfDocumentsWithWord = 0
