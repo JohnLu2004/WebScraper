@@ -110,7 +110,7 @@ def recordInformation(strSubPage, dicAllWords):
     recordTotalWordCount(strDirectory,dicWords)
 
     #store the term frequency
-    record_tf(strDirectory,dicWords)
+    recordTF(strDirectory,dicWords)
 
 #This generally updates a dictionary with the number of words inside
 #O(n^2) time
@@ -175,7 +175,7 @@ def recordWordCount(strDirectory, dicWords, dicAllWords):
 
 #This function creates a file for every word term frequency
 #O(n) time
-def record_tf(strDirectory,dicWords):
+def recordTF(strDirectory,dicWords):
     #first, we read the number of total numbre of word
     osPath = os.path.join(strDirectory,("total.txt"))
     osFile = open(osPath, "r")
