@@ -15,6 +15,8 @@ def crawl(seed):
     dicPages = {}
     #dicAllWords will basically record all the words we've been to
     dicAllWords={}
+    #dicIncomingLinks will record incoming links of the pages
+    dicIncomingLinks = {}
     
     #we need to reset what's inside the pages.txt file
     os.remove("pages.txt")
@@ -28,7 +30,10 @@ def crawl(seed):
     createNewDirectory(prtDirectory)
 
     #seed is the key and outgoing links list is the value
-    dicPages[seed]=getOutgoingLinks(seed)
+    outGoingLinks = getOutgoingLinks(seed)
+    dicPages[seed]= outGoingLinks
+    for url in outGoingLinks:
+        dictValueAppendElement(dicIncomingLinks, url, seed)
     recordInformation(seed, dicAllWords)
     ioPagesFile.write(seed+"\n")
 
@@ -42,7 +47,11 @@ def crawl(seed):
         #each time we go through one link
         strSubPage = lstQueue[0]
         #If the links found in page aren't in the queue or in the pages visited, add it to the list
-        dicPages[strSubPage]=getOutgoingLinks(strSubPage)
+        outGoingLinks = getOutgoingLinks(strSubPage)
+        dicPages[strSubPage] = outGoingLinks
+        # add the links to the dictionary of incoming list
+        for url in outGoingLinks:
+            dictValueAppendElement(dicIncomingLinks, url, strSubPage)
         #since we've gone on that page, let's add it to the pages we've visited
         lstPagesVisited.append(strSubPage)
         #We then add the page we've just visited to the text file
@@ -62,7 +71,10 @@ def crawl(seed):
     ioPagesFile.close()
 
     #record outgoing links
-    createOutGoingLinksFile(dicPages)
+    createOutgoingLinksFile(dicPages)
+
+    #record incoming links
+    createIncomingLinksFile(dicIncomingLinks)
     
     #Now that we have the pages we've been to, we can do the easy bit of recording IDF values
     recordIDF(dicAllWords, dicPages)
@@ -249,9 +261,15 @@ def getOutgoingLinks(url):
     return lstLinks
 
 #O(1)
-def createOutGoingLinksFile(dict):
+def createOutgoingLinksFile(dict):
     #make the file in the general directory
     file = open( "outgoinglinks.json", "w")
+    json.dump(dict,file)
+    file.close()
+
+def createIncomingLinksFile(dict):
+    #make the file in the general directory
+    file = open( "incominglinks.json", "w")
     json.dump(dict,file)
     file.close()
 
@@ -331,3 +349,9 @@ def createPageRankFile():
     fileout = open("pagerank.json", "w")
     json.dump(dicPageRank,fileout)
     fileout.close()
+
+def dictValueAppendElement(dict, key, value):
+    if not(key in dict):
+        dict[key] = [value]
+    else:
+        dict[key].append(value)
