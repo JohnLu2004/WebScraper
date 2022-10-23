@@ -7,7 +7,7 @@ output = open('fruits2-search-failed.txt', 'w')
 success_output = open('fruits2-search-passed.txt', 'w')
 
 #Performing crawl starting at seed http://people.scs.carleton.ca/~davidmckenney/fruits2/N-0.html
-crawler.crawl('http://people.scs.carleton.ca/~davidmckenney/fruits2/N-0.html')
+# crawler.crawl('http://people.scs.carleton.ca/~davidmckenney/fruits2/N-0.html')
 #Test #0 checking search results for 'tomato coconut' and boost = True
 expected = [{'url': 'http://people.scs.carleton.ca/~davidmckenney/fruits2/N-0.html', 'title': 'N-0', 'score': 0.01841964185256249}, {'url': 'http://people.scs.carleton.ca/~davidmckenney/fruits2/N-16.html', 'title': 'N-16', 'score': 0.012157553824837401}, {'url': 'http://people.scs.carleton.ca/~davidmckenney/fruits2/N-3.html', 'title': 'N-3', 'score': 0.012118562425919624}, {'url': 'http://people.scs.carleton.ca/~davidmckenney/fruits2/N-8.html', 'title': 'N-8', 'score': 0.011877960885945333}, {'url': 'http://people.scs.carleton.ca/~davidmckenney/fruits2/N-7.html', 'title': 'N-7', 'score': 0.011009379917772845}, {'url': 'http://people.scs.carleton.ca/~davidmckenney/fruits2/N-11.html', 'title': 'N-11', 'score': 0.010180760971221083}, {'url': 'http://people.scs.carleton.ca/~davidmckenney/fruits2/N-12.html', 'title': 'N-12', 'score': 0.009138545567141276}, {'url': 'http://people.scs.carleton.ca/~davidmckenney/fruits2/N-23.html', 'title': 'N-23', 'score': 0.007895564703744208}, {'url': 'http://people.scs.carleton.ca/~davidmckenney/fruits2/N-9.html', 'title': 'N-9', 'score': 0.007860301659144963}, {'url': 'http://people.scs.carleton.ca/~davidmckenney/fruits2/N-34.html', 'title': 'N-34', 'score': 0.0074287663514917245}]
 result = search.search('tomato coconut',True)

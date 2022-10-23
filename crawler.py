@@ -5,10 +5,12 @@ import json
 import matmult
 
 osParentDirectory = "crawling"
+osTFDirectory = "tf"
+osTFIDFDirectory = "tfidf"
 
 def crawl(seed):
     #first, make a list of all the links we've gone to
-    lstPagesVisited=[seed]
+    lstPagesVisited=[]
     #make a queue for what pages we should visit
     lstQueue = []
     #dicOutgoingLinks will record what pages we've been to
@@ -35,7 +37,7 @@ def crawl(seed):
         dicOutgoingLinks[strSubPage] = outGoingLinks
         # add the links to the dictionary of incoming list
         for url in outGoingLinks:
-            dictValueAppendElement(dicIncomingLinks, url, strSubPage)
+            dicValueAppendElement(dicIncomingLinks, url, strSubPage)
         #since we've gone on that page, let's add it to the pages we've visited
         lstPagesVisited.append(strSubPage)
         #We then add the page we've just visited to the text file
@@ -60,6 +62,14 @@ def crawl(seed):
     
     #Now that we have the pages we've been to, we can do the easy bit of recording IDF values
     recordIDF(dicAllWords, dicOutgoingLinks)
+
+    # record tf-idf of every page
+    osDirectory = osParentDirectory
+    lstPages = os.listdir(osDirectory)
+    for page in lstPages:
+        osDirectory = os.path.join(osDirectory, page)
+        recordTFIDF(osDirectory)
+        osDirectory = osParentDirectory
 
     #create page rank file
     createPageRankFile()
@@ -96,21 +106,21 @@ def recordInformation(strSubPage, dicAllWords):
     countWord(lstLines, dicWords)
     
     # create new directory
-    strDirectory = strSubPage[strSubPage.rfind("/")+1:len(strSubPage)-5]
+    osDirectory = strSubPage[strSubPage.rfind("/")+1:len(strSubPage)-5]
     # joining parent directory
-    strDirectory = os.path.join(osParentDirectory, strDirectory)
+    osDirectory = os.path.join(osParentDirectory, osDirectory)
 
-    # recursiveDeleteDirectory(strDirectory)
-    createNewDirectory(strDirectory)
+    # recursiveDeleteDirectory(osDirectory)
+    createNewDirectory(osDirectory)
     
     #create a file and then write into it
-    recordWordCount(strDirectory,dicWords,dicAllWords)
+    recordWordCount(osDirectory,dicWords,dicAllWords)
     
     #create a file that keeps track of how many words there are
-    recordTotalWordCount(strDirectory,dicWords)
+    recordTotalWordCount(osDirectory,dicWords)
 
     #store the term frequency
-    recordTF(strDirectory,dicWords)
+    recordTF(osDirectory,dicWords)
 
 #This generally updates a dictionary with the number of words inside
 #O(n^2) time
@@ -134,30 +144,30 @@ def countWord(lstLines, dicWords):
 
 #This function checks if a directory exists and deletes it
 #O(n^n) time
-def recursiveDeleteDirectory(strDirectory):
-    for entry in os.listdir(strDirectory):
-        if os.path.isdir(os.path.join(strDirectory,entry)):
-            recursiveDeleteDirectory(os.path.join(strDirectory,entry))
-        elif os.path.isfile(os.path.join(strDirectory,entry)):
-            os.remove(os.path.join(strDirectory,entry))
-    os.rmdir(strDirectory)
+def recursiveDeleteDirectory(osDirectory):
+    for entry in os.listdir(osDirectory):
+        if os.path.isdir(os.path.join(osDirectory,entry)):
+            recursiveDeleteDirectory(os.path.join(osDirectory,entry))
+        elif os.path.isfile(os.path.join(osDirectory,entry)):
+            os.remove(os.path.join(osDirectory,entry))
+    os.rmdir(osDirectory)
 
 #O(1)
-def createNewDirectory(strDirectory):
+def createNewDirectory(osDirectory):
     #If the directory doesn't exist
-    if not os.path.exists(strDirectory):
+    if not os.path.exists(osDirectory):
         #make a directory
-        os.makedirs(strDirectory)
+        os.makedirs(osDirectory)
 
 #This function creates files for every word and prints the number of times that word appears
 #O(n) time
-def recordWordCount(strDirectory, dicWords, dicAllWords):
+def recordWordCount(osDirectory, dicWords, dicAllWords):
     #for every key value(word) inside the dicWords dictionary,
     for strWord in dicWords:
         #create the file name
         strFileName = strWord+".txt"
         #make the path
-        osPath = os.path.join(strDirectory,(strFileName))
+        osPath = os.path.join(osDirectory,(strFileName))
         #open the file
         osFile = open(osPath, "w")
         #write the amount of times that word pops up into the file
@@ -175,17 +185,21 @@ def recordWordCount(strDirectory, dicWords, dicAllWords):
 
 #This function creates a file for every word term frequency
 #O(n) time
-def recordTF(strDirectory,dicWords):
+def recordTF(osDirectory,dicWords):
     #first, we read the number of total numbre of word
-    osPath = os.path.join(strDirectory,("total.txt"))
+    osPath = os.path.join(osDirectory,("total.txt"))
     osFile = open(osPath, "r")
-    fltTotal = float(osFile.readline());
+    fltTotal = float(osFile.readline())
     osFile.close()
 
+    # create tf
+    osDirectory = os.path.join(osDirectory,osTFDirectory)
+    createNewDirectory(osDirectory)
+    
     #for every word in dicWords
     for strWord in dicWords:     
         #now, we record the term frequencies
-        osPath = os.path.join(strDirectory,(strWord+"tf.txt"))
+        osPath = os.path.join(osDirectory,(strWord+"_tf.txt"))
         #open the file
         osPath = open(osPath, "w")
         #write into it
@@ -195,11 +209,11 @@ def recordTF(strDirectory,dicWords):
 
 #This function creates a file that prints out the total words in a page
 #O(n) time
-def recordTotalWordCount(strDirectory, dicWords):
+def recordTotalWordCount(osDirectory, dicWords):
     #initialize the total
     intTotal=0
     #find the path
-    strPath = os.path.join(strDirectory,("total.txt"))
+    strPath = os.path.join(osDirectory,("total.txt"))
     osFile = open(strPath, "w")
     #for every word in dicWords
     for strWord in dicWords:
@@ -215,17 +229,52 @@ def recordIDF(dicAllWords,dicOutgoingLinks):
     intTotalDocuments = len(dicOutgoingLinks)
     #for every word in the dictionary of all words
     for strWord in dicAllWords:
-        intNumberOfDocumentsWithWord = 0
         #enter the idf directory
-        osPath = os.path.join("IDF Values", strWord+"idf.txt")
+        osPath = os.path.join("IDF Values", strWord+"_idf.txt")
         #create the IDF value for the word
         osPath = open(osPath,"w")
         osPath.write(str(math.log2(intTotalDocuments/(1+dicAllWords[strWord]))))
         osPath.close()
 
+def recordTFIDF(osDirectory):
+    
+    # read tf
+    osInDirectory = os.path.join(osDirectory, osTFDirectory)
+    lstTF = os.listdir(osInDirectory)
+    dicTFIDF = {}
+    for tf in lstTF:
+        osPath = os.path.join(osInDirectory,tf)
+        filein = open(osPath, "r")
+        dicTFIDF[tf[0: tf.find("_")] + "_tfidf.txt"] = [float(filein.readline().strip()),0]
+        filein.close()
+    
+    # read idf
+    osInDirectory = "IDF Values"
+    lstIDF = os.listdir(osInDirectory)
+    for idf in lstIDF:
+        if idf[0: idf.find("_")] + "_tfidf.txt" in dicTFIDF:
+            osPath = os.path.join(osInDirectory,idf)
+            filein = open(osPath, "r")
+            dicTFIDF[idf[0: idf.find("_")] + "_tfidf.txt"][1] = float(filein.readline().strip())
+            filein.close()
+
+    # write word_tfidf.txt
+    # 1. create tf-idf directory
+    osOutDirectory = os.path.join(osDirectory, osTFIDFDirectory)
+    createNewDirectory(osOutDirectory)
+
+    # 2. write tfidf txts from dicTFIDF
+    for tfidf in dicTFIDF:
+         osPath = os.path.join(osOutDirectory,tfidf)
+         fileout = open(osPath, "w")
+         fileout.write(str(math.log2(1+dicTFIDF[tfidf][0])*dicTFIDF[tfidf][1]))
+         fileout.close()
+
 def getOutgoingLinks(url):
+
     lstLines = webdev.read_url(url).strip().split("\n")
-    #I'll also have 2 variables to keep track of the beginning and end of a link
+
+    # 2 variables to keep track of the beginning and end of a link
     intStart = 0
     intEnd = 0
     
@@ -343,7 +392,7 @@ def createPageRankFile():
     json.dump(dicPageRank,fileout)
     fileout.close()
 
-def dictValueAppendElement(dict, key, value):
+def dicValueAppendElement(dict, key, value):
     if not(key in dict):
         dict[key] = [value]
     else:
