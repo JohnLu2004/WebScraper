@@ -92,7 +92,8 @@ def resetInformation():
     createNewDirectory("IDF Values")
 
     #we need to reset what's inside the pages.txt file
-    os.remove("pages.txt")
+    if os.path.isfile("pages.txt"):
+        os.remove("pages.txt")
 
 #this function will write down the info into a file
 #O(n) time due to functions called that are O(n)
