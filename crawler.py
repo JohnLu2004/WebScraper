@@ -20,7 +20,7 @@ def crawl(seed):
     #dicAllWords will basically record all the words we've been to
     dicAllWords={}
     
-    # reset directory "crawling"
+    # reset information
     resetInformation()
 
     #every time we come across a page, we add it to pages.txt
@@ -84,11 +84,13 @@ def resetInformation():
         recursiveDeleteDirectory(osParentDirectory)
     #then create a new directory
     createNewDirectory(osParentDirectory)
+
     #reset directory "IDF Values"
     if os.path.isdir("IDF Values"):
         recursiveDeleteDirectory("IDF Values")
     #then create a new directory
     createNewDirectory("IDF Values")
+
     #we need to reset what's inside the pages.txt file
     os.remove("pages.txt")
 

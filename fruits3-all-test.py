@@ -7,7 +7,7 @@ start = time.time()
 #Performing crawl starting at seed http://people.scs.carleton.ca/~davidmckenney/fruits3/N-0.html
 crawler.crawl('http://people.scs.carleton.ca/~davidmckenney/fruits3/N-0.html')
 end = time.time()
-print("crawling time: ", end-start)
+print("crawling: ", end-start)
 
 start = time.time()
 output = open('fruits3-all-outgoing-failed.txt', 'w')
